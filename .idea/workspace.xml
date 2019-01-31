@@ -2,13 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="023a8327-18b9-4bad-8b19-e6cf925a13b0" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/src/templates/blog-post.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gatsby-config.js" beforeDir="false" afterPath="$PROJECT_DIR$/gatsby-config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/layout.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/transfer-to-gatsby.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/transfer-to-gatsby.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/templates/blog-post.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/blog-post.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -37,11 +33,17 @@
       <file leaf-file-name="blog-post.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/templates/blog-post.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="11" column="65" selection-start-line="11" selection-start-column="56" selection-end-line="11" selection-end-column="65" />
-              <folding>
-                <element signature="e#0#25#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="51">
+              <caret line="3" column="10" selection-start-line="3" selection-start-column="10" selection-end-line="3" selection-end-column="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="blog-post.css" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/templates/blog-post.css">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="17">
+              <caret line="1" column="33" lean-forward="true" selection-start-line="1" selection-start-column="33" selection-end-line="1" selection-end-column="33" />
             </state>
           </provider>
         </entry>
@@ -67,11 +69,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="layout.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="layout.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/components/layout.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="22" column="31" lean-forward="true" selection-start-line="22" selection-start-column="31" selection-end-line="22" selection-end-column="31" />
+            <state relative-caret-position="761">
+              <caret line="45" column="23" selection-start-line="45" selection-start-column="23" selection-end-line="45" selection-end-column="23" />
+              <folding>
+                <element signature="e#0#25#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="index.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pages/index.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="408">
+              <caret line="28" column="25" selection-start-line="28" selection-start-column="25" selection-end-line="28" selection-end-column="25" />
             </state>
           </provider>
         </entry>
@@ -105,29 +119,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Write-Blog-Using-Hexo.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/pages/Write-Blog-Using-Hexo.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="34">
-                <caret line="2" column="25" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="25" />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Flask-Basics.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/pages/Flask-Basics.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor />
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CSS File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -147,9 +146,10 @@
         <option value="$PROJECT_DIR$/gatsby-config.js" />
         <option value="$PROJECT_DIR$/src/pages/transfer-to-gatsby.md" />
         <option value="$PROJECT_DIR$/src/pages/about-mle-estimator.md" />
-        <option value="$PROJECT_DIR$/src/templates/blog-post.js" />
         <option value="$PROJECT_DIR$/src/pages/about-mle.md" />
         <option value="$PROJECT_DIR$/src/components/layout.js" />
+        <option value="$PROJECT_DIR$/src/templates/blog-post.js" />
+        <option value="$PROJECT_DIR$/src/templates/blog-post.css" />
       </list>
     </option>
   </component>
@@ -218,6 +218,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="list.type.of.created.stylesheet" value="CSS" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="yarn" />
@@ -247,12 +248,12 @@
       <workItem from="1548819331372" duration="6852000" />
       <workItem from="1548872246773" duration="688000" />
       <workItem from="1548873327733" duration="508000" />
-      <workItem from="1548891306408" duration="4289000" />
+      <workItem from="1548891306408" duration="5412000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="15898000" />
+    <option name="totallyTimeSpent" value="17021000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="728" y="0" width="1199" height="1047" extended-state="0" />
@@ -285,9 +286,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/.cache/default-html.js">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/gatsby-node.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="409">
@@ -453,13 +451,6 @@
     <entry file="file://$PROJECT_DIR$/.cache/default-html.js">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="432">
-          <caret line="28" column="25" selection-start-line="28" selection-start-column="25" selection-end-line="28" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/pages/about.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="162">
@@ -540,16 +531,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/templates/blog-post.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="65" selection-start-line="11" selection-start-column="56" selection-end-line="11" selection-end-column="65" />
-          <folding>
-            <element signature="e#0#25#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/pages/about-mle-estimator.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -570,10 +551,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="28" column="25" selection-start-line="28" selection-start-column="25" selection-end-line="28" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/components/layout.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="22" column="31" lean-forward="true" selection-start-line="22" selection-start-column="31" selection-end-line="22" selection-end-column="31" />
+        <state relative-caret-position="761">
+          <caret line="45" column="23" selection-start-line="45" selection-start-column="23" selection-end-line="45" selection-end-column="23" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/templates/blog-post.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="10" selection-start-line="3" selection-start-column="10" selection-end-line="3" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/templates/blog-post.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="33" lean-forward="true" selection-start-line="1" selection-start-column="33" selection-end-line="1" selection-end-column="33" />
         </state>
       </provider>
     </entry>
