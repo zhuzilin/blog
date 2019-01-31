@@ -1,6 +1,6 @@
 ---
 title: Transfer to Gatsby!
-date: 2019-1-30
+date: 2019-01-30 14:00:00
 tags: gatsby
 ---
 
