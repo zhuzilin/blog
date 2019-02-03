@@ -20,7 +20,7 @@ myEmitter.emit('event');
 
 Here is demo of the core function of the events. Therefore it is reasonable that we just focus on functions shown in this demo.
 
-The event relevant code lies in the "./lib/events.js" file. Apparently, the code exports EventEmitter function as its default export.
+The event relevant code lies in the `./lib/events.js` file. Apparently, the code exports EventEmitter function as its default export.
 
 ```javascript
 function EventEmitter() {
