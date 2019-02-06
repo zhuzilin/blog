@@ -1,7 +1,7 @@
 ---
-title: Node.js events source code reading
+title: “Node.js events source code reading”
 date: 2019-01-16 16:34:36
-tags: node
+tags: ["node"]
 ---
 
 It is well-known that Node.js is an event based JavaScript  runtime environment. And today let's dig deeper into the source code and have a look at how this event mechanism is implemented.
@@ -179,3 +179,4 @@ EventEmitter.prototype.emit = function emit(type, ...args) {
 ```
 
 So basically, the events module is just save the event handlers in the EventEmitter and call it when emitting.
+

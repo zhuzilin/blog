@@ -1,7 +1,7 @@
 ---
-title: Configure aws-sdk in win10
+title: "Configure aws-sdk in win10"
 date: 2018-11-18 12:28:02
-tags: aws, powershell
+tags: ["aws", "powershell"]
 ---
 
 ## Install for powershell

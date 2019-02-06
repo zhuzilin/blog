@@ -1,7 +1,7 @@
 ---
 title: About python relative importing
 date: 2018-07-05 15:06:13
-tags: [python]
+tags: ["python"]
 ---
 
 ## Relative importing is painful

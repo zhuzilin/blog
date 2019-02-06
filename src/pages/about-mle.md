@@ -60,7 +60,7 @@ Let $X_1,...,X_n$ be an i.i.d. sample of random variables with density or freque
 
 - $f(x; \theta)$ is differentiable with respect to $\theta$ for all x.
 
-then for an unbiased estimator $T(X)$ of $\theta$, we will have
+then for an **unbiased** estimator $T(X)$ of $\theta$, we will have
 $$
 var(T(X))\geq \frac{1}{nI(\theta)}
 $$
