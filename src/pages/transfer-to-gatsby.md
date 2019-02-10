@@ -1,7 +1,7 @@
 ---
 title: Transfer to Gatsby!
 date: 2019-01-30 14:00:00
-tags: gatsby
+tags: ["gatsby"]
 ---
 
 This is a blog with nothing technical inside. I just want to express my appreciation and thank to the Gatsby team!

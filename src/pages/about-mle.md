@@ -1,7 +1,7 @@
 ---
 title: About MLE
 date: 2019-01-30 18:22:00
-tags: machine-learning, math
+tags: ["machine-learning", "math"]
 ---
 
 It is really common to use maximum likelihood estimator (MLE) in machine learning. But do you ever think about the reason? Apart from the fact that it is prevalent and simple, here is why MLE is a very nice estimator.

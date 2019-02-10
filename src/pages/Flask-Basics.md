@@ -1,7 +1,7 @@
 ---
 title: Flask Basics
 date: 2018-07-05 11:25:26
-tags:
+tags: ["python"]
 ---
 
 During my internship at Face++, I participated in upgrading a tool platform for our group to package training data and test models. In this platform, we used flask as backend and here are some basics about this light weight framework.

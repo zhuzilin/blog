@@ -1,7 +1,7 @@
 ---
 title: Write Blog Using Hexo
 date: 2018-07-04 14:05:55
-tags: hexo
+tags: ["hexo"]
 ---
 
 Hexo is a fast static generator that could be used to help us build blog on github pages just like the one you are viewing. And as the first technical blog, I believe it is nice to introduce how this blog is created.

@@ -1,7 +1,7 @@
 ---
 title: First Electron App
 date: 2018-09-03 11:21:58
-tags: web, electron
+tags: ["web", "electron"]
 ---
 
 ## Installation

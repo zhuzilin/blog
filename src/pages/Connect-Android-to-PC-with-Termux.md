@@ -1,7 +1,7 @@
 ---
 title: Connect Android to PC with Termux
 date: 2018-12-29 11:02:14
-tags: ssh
+tags: ["ssh"]
 ---
 
 ## Termux

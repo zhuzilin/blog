@@ -1,7 +1,7 @@
 ---
 title: About CORS
 date: 2018-11-04 09:59:53
-tags: Web
+tags: ["Web"]
 ---
 
 ## Type of CORS

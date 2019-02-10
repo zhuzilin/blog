@@ -1,7 +1,7 @@
 ---
 title: D3 to Hexo
 date: 2018-07-04 16:33:02
-tags: [d3js]
+tags: ["d3js"]
 ---
 D3.js is a popular package for data visualization. It provides great freedom for designer and data scientists to show data. This time, we are trying to add D3 to Hexo to write blog with nice visualization.
 

@@ -1,5 +1,5 @@
 ---
-title: “Node.js events source code reading”
+title: Node.js events source code reading
 date: 2019-01-16 16:34:36
 tags: ["node"]
 ---
@@ -20,7 +20,7 @@ myEmitter.emit('event');
 
 Here is demo of the core function of the events. Therefore it is reasonable that we just focus on functions shown in this demo.
 
-The event relevant code lies in the `./lib/events.js` file. Apparently, the code exports EventEmitter function as its default export.
+The event relevant code lies in the `./lib/events.js` file. Apparently, the code exports `EventEmitter ` function as its default export.
 
 ```javascript
 function EventEmitter() {
@@ -29,7 +29,7 @@ function EventEmitter() {
 module.exports = EventEmitter;
 ```
 
-And the initialization is also simple. It only give initial value to some properties.
+And the initialization is also simple. It only give initial value to some properties, `this._event` is a null object   that could map the event name to the function and `this._eventsCount` is the total number of the events.
 
 ```javascript
 EventEmitter.init = function() {
@@ -45,9 +45,9 @@ EventEmitter.init = function() {
 
 Now comes the untrivial parts.
 
-The on function is a wrapper of the addListener, which is a wrapper of _addListener:
+The `on` function is a wrapper of the `addListener`, which is a wrapper of `_addListener`:
 
-```
+```javascript
 EventEmitter.prototype.addListener = function addListener(type, listener) {
   return _addListener(this, type, listener, false);
 };
@@ -55,14 +55,15 @@ EventEmitter.prototype.addListener = function addListener(type, listener) {
 EventEmitter.prototype.on = EventEmitter.prototype.addListener;
 ```
 
-So our main focus would be the _addListener function:
+So our main focus would be the `_addListener` function, notice the `target` argument is the `EventEmitter` object.
 
 ```javascript
 function _addListener(target, type, listener, prepend) {
   var m;
   var events;
   var existing;
-
+  
+  // To check if listener is function.
   checkListener(listener);
 
   events = target._events;
@@ -121,7 +122,9 @@ function _addListener(target, type, listener, prepend) {
 }
 ```
 
-The comment in the code is really clear. And for emit: 
+The comment in the code is really clear. The major part of the code is to add the `listener` to  `_events` and add one to `_eventsCount`. Also, if there is an existing listener, we will substitute it. Notice, if there is a `"newListener"` listener registered, it will be called before add the `listener` to  `_events`.
+
+And for emit: 
 
 ```javascript
 EventEmitter.prototype.emit = function emit(type, ...args) {
@@ -177,6 +180,8 @@ EventEmitter.prototype.emit = function emit(type, ...args) {
   return true;
 };
 ```
+
+In the `emit` function, we will call the handler in the `_events`, except for `"error"`, which will be used as error processing.
 
 So basically, the events module is just save the event handlers in the EventEmitter and call it when emitting.
 
