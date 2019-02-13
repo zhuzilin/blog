@@ -6,7 +6,7 @@ tags: ["python"]
 
 When running a python program, we would normally use command line or an IDE, but how is the python program actually got run? Or in other words, how would python be different from C?
 
-## Some basic
+## Some basics
 
 First, let us be clear that the statement "Python is a interpreted language" is confusing. Since
 
