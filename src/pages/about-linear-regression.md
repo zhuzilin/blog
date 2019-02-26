@@ -167,7 +167,7 @@ $$
 
 ### Probabilistic interpretation
 
-If we set the prior distribution for $w$ as $w\sim N(0, \lambda^{-1}I$, then
+If we set the prior distribution for $w$ as $w\sim \mathcal{N}(0, \lambda^{-1}I)$, then
 $$
 p(w)=(\frac{\lambda}{2\pi})^{\frac{d}{2}}e^{-\frac{\lambda}{2}w^Tw}
 $$
