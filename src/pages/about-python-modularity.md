@@ -20,7 +20,7 @@ The use of modules saves the authors of different modules from having to worry a
 
 Therefore, any `.py` file is a module.  And any module can be imported by the `import` statement with its `__name__`.
 
-Then what is `if __name__ == "__main__:"`? 
+Then what is `if __name__ == "__main__":`? 
 
 > `'__main__'` is the name of the scope in which top-level code executes. A module’s __name__ is set equal to `'__main__'` when read from standard input, a script, or from an interactive prompt.
 
@@ -30,7 +30,20 @@ $ python
 '__main__'
 ```
 
-Notice that if a module is run by `python -m`, the name would also be set as ` '__main__'`.
+Notice that if a module is run by `python -m`, the name would also be set as ` '__main__'`. But there is a solution for the renaming case: [PEP 366](https://www.python.org/dev/peps/pep-0366/) introduced the `__package__` attribute.
+
+> The major proposed change is the introduction of a new module level attribute, `__package__`. When it is present, relative imports will be based on this attribute rather than the module `__name__` attribute.
+
+Therefore, we could use the following code to solve the problem:
+
+```python
+if __name__ == "__main__" and __package__ is None:
+    __package__ = "expected.package.name"
+```
+
+### Relative importing
+
+If the module is not renamed as `__main__`, we could use the relative importing to refer the packages according to the relative path.
 
 ### Symbol table
 
@@ -62,7 +75,7 @@ In fact, package is a special kind of module:
 
 There are two kinds of packages: regular packages and namespace packages, here we will only talk about the regular ones.
 
-### _\_init\_\_.py
+### \_\_init\_\_.py
 
 > A regular package is typically implemented as a directory containing an `__init__.py` file. When a regular package is imported, this `__init__.py` file is implicitly executed, and the objects it defines are bound to names in the package’s namespace. The `__init__.py` file can contain the same Python code that any other module can contain, and Python will add some additional attributes to the module when it is imported.
 
