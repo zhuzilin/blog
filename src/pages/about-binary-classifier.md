@@ -10,8 +10,8 @@ There is a summary of many rudimental binary classifier. And for more complex on
 
 For any classifier $f: \mathcal{X}\rightarrow \mathcal{Y}$, its prediction error is:
 $$
-P(f(X)\neq Y)=\mathbb{E}[1\!\!1(f(X)\neq Y)]
-=\mathbb{E}[\mathbb{E}[1\!\!1(f(X)\neq Y)|X]]
+P(f(X) \neq Y)=\mathbb{E}[1\!\!1(f(X) \neq Y)]
+=\mathbb{E}[\mathbb{E}[1\!\!1(f(X) \neq Y)|X]]
 $$
 And for each $x\in \mathcal{X}$,
 $$
