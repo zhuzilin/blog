@@ -318,6 +318,14 @@ $$
 \Delta_k(\Delta_lx_t)=(1-B^k)(1-B^l)x_t
 $$
 
+## ARIMA
+
+if 
+$$
+Z_t=(1-B)^dX_t\sim ARMA(p, q)
+$$
+then $X_t$ is ARIMA(p, d, q).
+
 ## References
 
 1. Tsay, Ruey S. *Analysis of financial time series*. Vol. 543. John Wiley & Sons, 2005.

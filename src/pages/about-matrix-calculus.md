@@ -1,7 +1,7 @@
 ---
 title: About Matrix Calculus
-date: 2019-02-23 23:00:00
-tags: ["machine-learning", "math"]
+date: 2019-03-10 23:00:00
+tags: ["math"]
 ---
 
 很长时间以来，虽然学习机器学习，但是我对最基本的矩阵求导仍然是非常模糊，在这里好好的整理一下。以下内容几乎全部来自[Matrix calculus](https://en.wikipedia.org/wiki/Matrix_calculus)的维基页面。
@@ -119,7 +119,41 @@ $$
 
 对于矩阵相关的求导也会有对应的方式。
 
-## Identity
+## Differential Form
+
+有的时候微分形式更好处理。
+
+### Scalar
+
+| Expression                                                   | Result (numerator layout)                                    |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![{\displaystyle d(\operatorname {tr} (\mathbf {X} ))=}](https://wikimedia.org/api/rest_v1/media/math/render/svg/9f5dc91e24553a1473e6cec689c561fcdacf589b) | ![{\displaystyle \operatorname {tr} (d\mathbf {X} )}](https://wikimedia.org/api/rest_v1/media/math/render/svg/234412411bd5861af0f17b144a7238b5cf9707e7) |
+| ![d(\|\mathbf{X}\|) =](https://wikimedia.org/api/rest_v1/media/math/render/svg/967384df794437f3b37679aa8e82167b646a1773) | ![{\displaystyle \|\mathbf {X} \|\operatorname {tr} \left(\mathbf {X} ^{-1}d\mathbf {X} \right)=\operatorname {tr} (\operatorname {adj} (\mathbf {X} )d\mathbf {X} )}](https://wikimedia.org/api/rest_v1/media/math/render/svg/cfd15904de92b2329944348c6e5a70ed9589e927) |
+| ![d(\ln\|\mathbf{X}\|) =](https://wikimedia.org/api/rest_v1/media/math/render/svg/b3259d0f3b205654dd6cb94d14333a2255869a95) | ![{\displaystyle \operatorname {tr} \left(\mathbf {X} ^{-1}d\mathbf {X} \right)}](https://wikimedia.org/api/rest_v1/media/math/render/svg/54c70f56b35822017d5a03d5ddff897658c56c4e) |
+
+### Matrix
+
+| Expression                                                   | Result (numerator layout)                                    |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![d(\mathbf{A}) =](https://wikimedia.org/api/rest_v1/media/math/render/svg/8a7e6e2ff84cff62eace2f5d1fee6ca89a2938ed) | ![{\displaystyle 0}](https://wikimedia.org/api/rest_v1/media/math/render/svg/2aae8864a3c1fec9585261791a809ddec1489950) |
+| ![d(a\mathbf{X}) =](https://wikimedia.org/api/rest_v1/media/math/render/svg/91c101b0891c47b3f1d20d96b141125474867ae9) | ![a\,d\mathbf{X}](https://wikimedia.org/api/rest_v1/media/math/render/svg/f7c3d97e20baf0ea9790cd63e7207128846b38d4) |
+| ![{\displaystyle d(\mathbf {X} +\mathbf {Y} )=}](https://wikimedia.org/api/rest_v1/media/math/render/svg/b73dba0b049337a0cef941d976498d1dabe4bc76) | ![{\displaystyle d\mathbf {X} +d\mathbf {Y} }](https://wikimedia.org/api/rest_v1/media/math/render/svg/f30ac4c458061ea58a52b5a18e676bc2a7f1e1b5) |
+| ![d(\mathbf{X}\mathbf{Y}) =](https://wikimedia.org/api/rest_v1/media/math/render/svg/83613591465e8a82e10550e0e8b3e1e80b88a07e) | ![{\displaystyle (d\mathbf {X} )\mathbf {Y} +\mathbf {X} (d\mathbf {Y} )}](https://wikimedia.org/api/rest_v1/media/math/render/svg/ea9909db6929624a5a28fb860e7eadfc52a98ef7) |
+| ![{\displaystyle d\left(\mathbf {X} ^{\top }\right)=}](https://wikimedia.org/api/rest_v1/media/math/render/svg/80e08fac2a1857d6eeeca6e6937a62eb969dbd77) | ![(d{\mathbf  {X}})^{\top }](https://wikimedia.org/api/rest_v1/media/math/render/svg/3f2d0c0a81802de0c8588dd215bbd3b2c2eaf675) |
+| ![{\displaystyle d\left(\mathbf {X} ^{-1}\right)=}](https://wikimedia.org/api/rest_v1/media/math/render/svg/221625109e14bae9bde2f8e4642dc8b35c03f8ee) | ![{\displaystyle -\mathbf {X} ^{-1}\left(d\mathbf {X} \right)\mathbf {X} ^{-1}}](https://wikimedia.org/api/rest_v1/media/math/render/svg/c12a8f577a94f9713686bf68d414c0a87f244a85) |
+
+### Conversion from differential to derivative form
+
+| Canonical differential form                                  | Equivalent derivative form                                   |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![dy = a\,dx](https://wikimedia.org/api/rest_v1/media/math/render/svg/2ce456dc40793632c19c009d6170c74ae644f784) | ![\frac{dy}{dx} = a](https://wikimedia.org/api/rest_v1/media/math/render/svg/51e758428a1022503fdaeffc5e287c5bf7bbdc06) |
+| ![dy = \mathbf{a}\,d\mathbf{x}](https://wikimedia.org/api/rest_v1/media/math/render/svg/58a74bac28be116049618063edf172dbd642401d) | ![\frac{dy}{d\mathbf{x}} = \mathbf{a}](https://wikimedia.org/api/rest_v1/media/math/render/svg/68144e957185454ff401f6e7f9f4daec4217a5bc) |
+| ![{\displaystyle dy=\operatorname {tr} (\mathbf {A} \,d\mathbf {X} )}](https://wikimedia.org/api/rest_v1/media/math/render/svg/a33eead0af35733e6ac1ca42f6c899731b531eed) | ![\frac{dy}{d\mathbf{X}} = \mathbf{A}](https://wikimedia.org/api/rest_v1/media/math/render/svg/cc8d6694e983da55260de8ef14f1bf7bdb85b40f) |
+| ![d\mathbf{y} = \mathbf{a}\,dx](https://wikimedia.org/api/rest_v1/media/math/render/svg/4a0ae3cf15e1267f4fdb141e1d68349927727bef) | ![\frac{d\mathbf{y}}{dx} = \mathbf{a}](https://wikimedia.org/api/rest_v1/media/math/render/svg/faa54d96218197dadd7b4f1e3471443c0b79a6d2) |
+| ![d\mathbf{y} = \mathbf{A}\,d\mathbf{x}](https://wikimedia.org/api/rest_v1/media/math/render/svg/38e99d558f59946cfc8d0cb3b995a49c42fead04) | ![\frac{d\mathbf{y}}{d\mathbf{x}} = \mathbf{A}](https://wikimedia.org/api/rest_v1/media/math/render/svg/a5649f8fff55607c21a17cdb42c9c5d15b2f19b6) |
+| ![d\mathbf{Y} = \mathbf{A}\,dx](https://wikimedia.org/api/rest_v1/media/math/render/svg/a371dad51f295c2fee9df1952f2bdfaa856c254e) | ![\frac{d\mathbf{Y}}{dx} = \mathbf{A}](https://wikimedia.org/api/rest_v1/media/math/render/svg/5c48de4dccee87aaf5fba393272c94b5a8065af5) |
+
+## Some useful formula
 
 这里在原文中有很好的一个表，在这里会摘取一些机器学习中经常会用的式子。
 
@@ -138,3 +172,26 @@ $$
   \frac{\partial\bold{v}}{\partial \bold{x}}\bold{u}+\frac{\partial\bold{u}}{\partial \bold{x}}\bold{v}(denom)
   $$
 
+- 矩阵的迹的导数可以用其循环和转置的性质求得，如：
+  $$
+  \begin{aligned}
+  d\ tr(AXBX^TC) &= tr(d(CAXBX^T)) \\
+  &=tr(d(CAX)BX^T + CAXd(BX^T))\\
+  &=tr(CAd(X)BX^T+CAXB(dX^T))\\
+  &=tr(BX^TCAdX)+tr(CAXB(dX)^T)\\
+  &=tr(BX^TCAdX)+tr((dXB^TX^TA^TC^T)^T)\\
+  &=tr(BX^TCAdx)+tr(dXB^TX^TA^TC^T)\\
+  &=tr((BX^TCA+B^TX^TA^TC^T)dX)\\
+  \frac{\partial tr(AXBX^TC)}{\partial X} &= BX^TCA+B^TX^TA^TC^T
+  \end{aligned}
+  $$
+  注意很多时候，把变量结果转化为迹就可以更好的求得结果。
+
+- 对于行列式，我们有：
+  $$
+  \begin{aligned}
+  \frac{\partial |X|}{\partial X} &= |X|X^{-1}\\
+  \frac{\partial \log|X|}{\partial X} &= X^{-1}
+  \end{aligned}
+  $$
+  
