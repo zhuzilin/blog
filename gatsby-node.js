@@ -1,5 +1,6 @@
 const path = require(`path`)
 const { createFilePath } = require(`gatsby-source-filesystem`)
+const _ = require(`lodash`);
 
 exports.onCreateNode = ({ node, getNode, actions }) => {
     const { createNodeField } = actions
@@ -17,11 +18,17 @@ exports.createPages = ({ graphql, actions }) => {
     const { createPage } = actions
     return graphql(`
     {
-      allMarkdownRemark {
+      allMarkdownRemark(
+        sort: { order: DESC, fields: [frontmatter___date] }
+        limit: 2000
+      ) {
         edges {
           node {
             fields {
               slug
+            }
+            frontmatter {
+              tags
             }
           }
         }
@@ -29,7 +36,8 @@ exports.createPages = ({ graphql, actions }) => {
     }
   `
     ).then(result => {
-        result.data.allMarkdownRemark.edges.forEach(({ node }) => {
+        const posts = result.data.allMarkdownRemark.edges;
+        posts.forEach(({ node }) => {
             createPage({
                 path: node.fields.slug,
                 component: path.resolve(`./src/templates/blog-post.js`),
@@ -39,6 +47,26 @@ exports.createPages = ({ graphql, actions }) => {
                     slug: node.fields.slug,
                 },
             })
+        });
+        
+        let tags = []
+        // Iterate through each post, putting all found tags into `tags`
+        _.each(posts, edge => {
+          if (_.get(edge, "node.frontmatter.tags")) {
+            tags = tags.concat(edge.node.frontmatter.tags)
+          }
+        })
+        // Eliminate duplicate tags
+        tags = _.uniq(tags)
+        // Make tag pages
+        tags.forEach(tag => {
+          createPage({
+            path: `/tags/${_.kebabCase(tag)}/`,
+            component: path.resolve(`./src/templates/tag.js`),
+            context: {
+              tag,
+            },
+          })
         })
     })
 }

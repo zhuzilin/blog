@@ -1,7 +1,7 @@
 ---
 title: Google Cloud 配置 ssh
 date: 2019-03-09 22:10:02
-tags: ["google cloud"]
+tags: ["google-cloud", "cloud"]
 ---
 
 如果我们需要通过本地的ssh登陆google cloud instance，主要要进行如下几步：
