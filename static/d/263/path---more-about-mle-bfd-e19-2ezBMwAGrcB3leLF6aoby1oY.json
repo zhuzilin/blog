@@ -1,1 +1,0 @@
-{"errors":[{"message":"KaTeX parse error: Undefined control sequence: \\nef at position 45: …w f(x_i;\\theta)\\̲n̲e̲f̲(x_i;\\theta')","locations":[{"line":5,"column":5}],"path":["markdownRemark","html"]}],"data":{"markdownRemark":{"html":null,"frontmatter":{"title":"More About MLE"}}},"pageContext":{"slug":"/more-about-mle/"}}

@@ -1,1 +1,0 @@
-{"errors":[{"message":"KaTeX parse error: Undefined control sequence: \\mathical at position 1: \\̲m̲a̲t̲h̲i̲c̲a̲l̲{L}(\\theta, Z)","locations":[{"line":5,"column":5}],"path":["markdownRemark","html"]}],"data":{"markdownRemark":{"html":null,"frontmatter":{"title":"About EM"}}},"pageContext":{"slug":"/about-EM/"}}
