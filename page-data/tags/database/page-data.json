@@ -1,0 +1,1 @@
+{"componentChunkName":"component---src-templates-tag-js","path":"/tags/database/","webpackCompilationHash":"b675513abbbda0859f3e","result":{"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/database-architecture/"},"frontmatter":{"title":"数据库基本架构"}}}]}},"pageContext":{"isCreatedByStatefulCreatePages":false,"tag":"database"}}}
