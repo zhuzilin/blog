@@ -5,9 +5,56 @@
 <h2>Isolation mechanism</h2>
 <p>kernel通过硬件机制辅助来进行process isolation。硬件上的user/kernel mode flag，在x86上叫CPL，是<code class="language-text">%cs</code>的后两位，CPL=0就是kernel mode，=3就是user mode。通过给几个permissible kernel entry points来跳到kernel里面去，这样就可以防止在转换的时候用户可以破坏Kernel。</p>
 <p>对内存的隔离是利用address space，其目的是可以让每个进程有内存来访问自己的code，variables，heap，stack 并不访问其他的内存。</p>
-<h2>System Call</h2>
+<h2>Interrupt, System calls and Exceptions</h2>
+<p>这3类会触发<code class="language-text">trap</code>。</p>
+<ul>
+<li>Exceptions (page fault, divide by zero)</li>
+<li>System calls (<code class="language-text">INT</code>, intended exception)</li>
+<li>Interrupts (devices want attention)</li>
+</ul>
+<p>注意在术语上<code class="language-text">trap</code>是被当前进程引发的，如system call，而interrupt是由外界device触发的。</p>
+<p><code class="language-text">trap()</code>函数是如何知道哪个设备出发了中断？</p>
+<ul>
+<li>
+<p>kernel设置LAPIC/IOAPIC ，把某个类型的中断设置为对应的vector number</p>
+<ul>
+<li>page fault也有vectors</li>
+<li>LAPIC/IOAPIC是PC的常规硬件，其中每个cpu有一个LAPIC</li>
+</ul>
+</li>
+<li>
+<p>IDT (interrupt descriptor table)用vector number来联系一个instruction address</p>
+<ul>
+<li>这个table的内容是怎么设置的可以看下面的<code class="language-text">SETGATE</code>函数。</li>
+<li>IDT的格式是由Intel定义的，由kernel设置的</li>
+</ul>
+</li>
+<li>每个vector都会跳到<code class="language-text">alltraps</code></li>
+<li>CPU会通过IDT发送各种trap，其中lower 32 IDT entries有特殊的含义。</li>
+<li>在xv6中，system call(IRQ)被设置为<code class="language-text">0x40</code>.</li>
+</ul>
+<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">diagram:
+  IRQ or trap, IDT table, vectors, alltraps
+  IDT:
+    0: divide by zero
+    13: general protection
+    14: page fault
+    32-255: device IRQs
+    32: timer
+    33: keyboard
+    46: IDE
+    64: INT</code></pre></div>
+<p>xv6会在<code class="language-text">main.c</code>中的<code class="language-text">lapicinit()</code>、<code class="language-text">ioapicinit()</code>与<code class="language-text">tvinit()</code>来设置好interrupt vector。</p>
+<p><code class="language-text">tvinit</code>中大多数都是机械性的设置，唯有<code class="language-text">T_SYSCALL</code>里面设置了<code class="language-text">istrap=1</code>，也就是让系统在进行system call的时候仍然<strong>保留中断</strong>，而其他的device interrupt就不保留了。</p>
+<p>思考两个问题（我现在还不明白...）</p>
+<ul>
+<li>为什么在system call的过程中允许中断？</li>
+<li>为什么在interrupt handing之中disable interrupt。</li>
+</ul>
+<p>注意因为JOS只有一个kernel stack，而xv6有多个，所以JOS不允许在kernel中进行中断。</p>
+<h3>System Call</h3>
 <p>system call的具体流程如下：</p>
-<p>在xv6中，一个像shell这样的用户应用，会include <code class="language-text">user.h</code>，这李忠定义了用户端能够使用的所有system call的函数。而这些函数的定义都在<code class="language-text">usys.S</code>中，具体如下：</p>
+<p>在xv6中，一个像shell这样的用户应用，会include <code class="language-text">user.h</code>，这里定义了用户端能够使用的所有system call的函数。而这些函数的定义都在<code class="language-text">usys.S</code>中，具体如下：</p>
 <div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">#define SYSCALL(name) \
   .globl name; \
   name: \
@@ -59,8 +106,292 @@ vector64:
 <p>所以PD有1024个PDE，每个PDE指向一个page table，每个page table里面有1024个PTE，所以一共2^20个PTE。</p>
 <p>在寄存器<code class="language-text">%cr3</code>中存储了PD的地址，MMU就是通过读<code class="language-text">%cr3</code>来开始转化。这个转化为</p>
 <ol>
-<li>通过<code class="language-text">%cr</code>找到PD的PA，从而加载PD</li>
+<li>通过<code class="language-text">%cr3</code>找到PD的PA，从而加载PD</li>
 <li>用VA的前10位找到PDE，用PDE的PPN找到PT</li>
 <li>用VA的中间10位找到PTE</li>
 <li>用PTE的前20位加上VA的最后12位找到VA对应的PA。</li>
-</ol></div></div></div></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/6.828-review/";window.webpackCompilationHash="5a11a2db5b88de6221a2";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"app":["/app-e43f66d12982cca97132.js"],"component---src-templates-blog-post-js":["/component---src-templates-blog-post-js-5e4dda773203dafed331.js"],"component---src-templates-tag-js":["/component---src-templates-tag-js-d1acf86f4e18b8c0dcd2.js"],"component---src-pages-404-js":["/component---src-pages-404-js-878df897f841789bef67.js"],"component---src-pages-about-js":["/component---src-pages-about-js-506f4e46f4969d8794ed.js"],"component---src-pages-index-js":["/component---src-pages-index-js-f4a7f10f1369c3a74d3a.js"],"component---src-pages-my-files-js":["/component---src-pages-my-files-js-04230e8e4e4d08c693fc.js"],"component---src-pages-tags-js":["/component---src-pages-tags-js-085b6299d45538ace545.js"]};/*]]>*/</script><script src="/webpack-runtime-2624e648f8e51c6abe7e.js" async=""></script><script src="/app-e43f66d12982cca97132.js" async=""></script><script src="/0-e5655ea3b793fcb8a9bd.js" async=""></script><script src="/2-cf06e27d29789fb70951.js" async=""></script><script src="/component---src-templates-blog-post-js-5e4dda773203dafed331.js" async=""></script><script src="/styles-b3b9a98f1384a6f8783d.js" async=""></script></body></html>
+</ol>
+<h3>xv6的内存mapping</h3>
+<h4>address space如下：</h4>
+<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">  0x00000000:0x80000000 -- user addresses below KERNBASE
+  0x80000000:0x80100000 -- map low 1MB devices (for kernel)
+  0x80100000:?          -- kernel instructions/data
+  ?         :0x8E000000 -- 224 MB of DRAM mapped here
+  0xFE000000:0x00000000 -- more memory-mapped devices</code></pre></div>
+<p>对于以上的mapping，有几个注意：</p>
+<ul>
+<li>
+<p>user virtual addresses 从0开始</p>
+<ul>
+<li>注意不同user的0会map到不同的PA</li>
+</ul>
+</li>
+<li>
+<p>2GB for user heap to grow contiguously</p>
+<ul>
+<li>不过注意这2G不是连续的物理内存，所以就不会有fragmentation problem</li>
+</ul>
+</li>
+<li>
+<p>kernel和user都被map了</p>
+<ul>
+<li>为了方便进行system call或interrupt</li>
+<li>方便kernel读写用户内存</li>
+</ul>
+</li>
+<li>
+<p>kernel永远都被map在固定位置：</p>
+<ul>
+<li>方便切换进程</li>
+</ul>
+</li>
+<li>
+<p>kernel线性映射（pa x mapped at va x+0x80000000)</p>
+<ul>
+<li>方便kernel读写物理内存</li>
+</ul>
+</li>
+<li>这种情况最大的进程能有：<code class="language-text">0x80000000</code>，也就是2G内存。</li>
+</ul>
+<h4>初始化</h4>
+<p>最开始<code class="language-text">bootmain</code>运行之后会进入<code class="language-text">entry.S</code>，这里面会先直接把<code class="language-text">%cr3</code>赋值为<code class="language-text">entrypgdir</code>。</p>
+<div class="gatsby-highlight" data-language="assembly"><pre class="language-assembly"><code class="language-assembly">  # Set page directory
+  movl    $(V2P_WO(entrypgdir)), %eax
+  movl    %eax, %cr3</code></pre></div>
+<p><code class="language-text">entrypgdir</code>的映射如下：</p>
+<div class="gatsby-highlight" data-language="c"><pre class="language-c"><code class="language-c"><span class="token comment">// The boot page table used in entry.S and entryother.S.</span>
+<span class="token comment">// Page directories (and page tables) must start on page boundaries,</span>
+<span class="token comment">// hence the __aligned__ attribute.</span>
+<span class="token comment">// PTE_PS in a page directory entry enables 4Mbyte pages.</span>
+
+<span class="token function">__attribute__</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token function">__aligned__</span><span class="token punctuation">(</span>PGSIZE<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+pde_t entrypgdir<span class="token punctuation">[</span>NPDENTRIES<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token comment">// Map VA's [0, 4MB) to PA's [0, 4MB)</span>
+  <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">|</span> PTE_P <span class="token operator">|</span> PTE_W <span class="token operator">|</span> PTE_PS<span class="token punctuation">,</span>
+  <span class="token comment">// Map VA's [KERNBASE, KERNBASE+4MB) to PA's [0, 4MB)</span>
+  <span class="token punctuation">[</span>KERNBASE<span class="token operator">>></span>PDXSHIFT<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">|</span> PTE_P <span class="token operator">|</span> PTE_W <span class="token operator">|</span> PTE_PS<span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span></code></pre></div>
+<p>里面的注释写了，把VA的<code class="language-text">0x00000000:0x00400000</code>和<code class="language-text">0x80000000:0x80400000</code>都映射到PA的<code class="language-text">0x00000000:0x00400000</code>。会先初始化kernel的address space，再进行user的。</p>
+<div class="gatsby-highlight" data-language="c"><pre class="language-c"><code class="language-c">  <span class="token function">kinit1</span><span class="token punctuation">(</span>end<span class="token punctuation">,</span> <span class="token function">P2V</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token operator">*</span><span class="token number">1024</span><span class="token operator">*</span><span class="token number">1024</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// phys page allocator</span>
+  <span class="token function">kvmalloc</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>      <span class="token comment">// kernel page table</span>
+  <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+  <span class="token function">kinit2</span><span class="token punctuation">(</span><span class="token function">P2V</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token operator">*</span><span class="token number">1024</span><span class="token operator">*</span><span class="token number">1024</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">P2V</span><span class="token punctuation">(</span>PHYSTOP<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// must come after startothers()</span>
+  <span class="token function">userinit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>      <span class="token comment">// first user process</span></code></pre></div>
+<p>先说kernel的一头一尾：<code class="language-text">kinit1</code>和<code class="language-text">kinit2</code>。这里的<code class="language-text">P2V</code>就是加上<code class="language-text">KERNBASE</code>，然后<code class="language-text">end</code>是已经在boot阶段被载入的kernel的地址结尾（不知道是怎么获取的...），<code class="language-text">PHYSTOP</code>是<code class="language-text">0xE0000000</code>，物理内存最大值。</p>
+<p>对于实现细节：</p>
+<div class="gatsby-highlight" data-language="c"><pre class="language-c"><code class="language-c"><span class="token comment">// Initialization happens in two phases.</span>
+<span class="token comment">// 1. main() calls kinit1() while still using entrypgdir to place just</span>
+<span class="token comment">// the pages mapped by entrypgdir on free list.</span>
+<span class="token comment">// 2. main() calls kinit2() with the rest of the physical pages</span>
+<span class="token comment">// after installing a full page table that maps them on all cores.</span>
+<span class="token keyword">void</span>
+<span class="token function">kinit1</span><span class="token punctuation">(</span><span class="token keyword">void</span> <span class="token operator">*</span>vstart<span class="token punctuation">,</span> <span class="token keyword">void</span> <span class="token operator">*</span>vend<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  <span class="token function">initlock</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>kmem<span class="token punctuation">.</span>lock<span class="token punctuation">,</span> <span class="token string">"kmem"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  kmem<span class="token punctuation">.</span>use_lock <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token function">freerange</span><span class="token punctuation">(</span>vstart<span class="token punctuation">,</span> vend<span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// 注意这里的freerange就是把这个范围里的physical memory free掉</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span>
+<span class="token function">kinit2</span><span class="token punctuation">(</span><span class="token keyword">void</span> <span class="token operator">*</span>vstart<span class="token punctuation">,</span> <span class="token keyword">void</span> <span class="token operator">*</span>vend<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  <span class="token function">freerange</span><span class="token punctuation">(</span>vstart<span class="token punctuation">,</span> vend<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  kmem<span class="token punctuation">.</span>use_lock <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre></div>
+<p>其实也就是把对应部分的内存抹干净了。</p>
+<p>在第二步的<code class="language-text">kvmalloc</code>中切换了page table。</p>
+<div class="gatsby-highlight" data-language="c"><pre class="language-c"><code class="language-c"><span class="token comment">// There is one page table per process, plus one that's used when</span>
+<span class="token comment">// a CPU is not running any process (kpgdir). The kernel uses the</span>
+<span class="token comment">// current process's page table during system calls and interrupts;</span>
+<span class="token comment">// page protection bits prevent user code from using the kernel's</span>
+<span class="token comment">// mappings.</span>
+<span class="token comment">//</span>
+<span class="token comment">// setupkvm() and exec() set up every page table like this:</span>
+<span class="token comment">//</span>
+<span class="token comment">//   0..KERNBASE: user memory (text+data+stack+heap), mapped to</span>
+<span class="token comment">//                phys memory allocated by the kernel</span>
+<span class="token comment">//   KERNBASE..KERNBASE+EXTMEM: mapped to 0..EXTMEM (for I/O space)</span>
+<span class="token comment">//   KERNBASE+EXTMEM..data: mapped to EXTMEM..V2P(data)</span>
+<span class="token comment">//                for the kernel's instructions and r/o data</span>
+<span class="token comment">//   data..KERNBASE+PHYSTOP: mapped to V2P(data)..PHYSTOP,</span>
+<span class="token comment">//                                  rw data + free physical memory</span>
+<span class="token comment">//   0xfe000000..0: mapped direct (devices such as ioapic)</span>
+<span class="token comment">//</span>
+<span class="token comment">// The kernel allocates physical memory for its heap and for user memory</span>
+<span class="token comment">// between V2P(end) and the end of physical memory (PHYSTOP)</span>
+<span class="token comment">// (directly addressable from end..P2V(PHYSTOP)).</span>
+
+<span class="token comment">// This table defines the kernel's mappings, which are present in</span>
+<span class="token comment">// every process's page table.</span>
+<span class="token keyword">static</span> <span class="token keyword">struct</span> <span class="token class-name">kmap</span> <span class="token punctuation">{</span>
+  <span class="token keyword">void</span> <span class="token operator">*</span>virt<span class="token punctuation">;</span>
+  uint phys_start<span class="token punctuation">;</span>
+  uint phys_end<span class="token punctuation">;</span>
+  <span class="token keyword">int</span> perm<span class="token punctuation">;</span>
+<span class="token punctuation">}</span> kmap<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+ <span class="token punctuation">{</span> <span class="token punctuation">(</span><span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span>KERNBASE<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span>             EXTMEM<span class="token punctuation">,</span>    PTE_W<span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token comment">// I/O space</span>
+ <span class="token punctuation">{</span> <span class="token punctuation">(</span><span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span>KERNLINK<span class="token punctuation">,</span> <span class="token function">V2P</span><span class="token punctuation">(</span>KERNLINK<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">V2P</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">}</span><span class="token punctuation">,</span>     <span class="token comment">// kern text+rodata</span>
+ <span class="token punctuation">{</span> <span class="token punctuation">(</span><span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span>data<span class="token punctuation">,</span>     <span class="token function">V2P</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">,</span>     PHYSTOP<span class="token punctuation">,</span>   PTE_W<span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token comment">// kern data+memory</span>
+ <span class="token punctuation">{</span> <span class="token punctuation">(</span><span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span>DEVSPACE<span class="token punctuation">,</span> DEVSPACE<span class="token punctuation">,</span>      <span class="token number">0</span><span class="token punctuation">,</span>         PTE_W<span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token comment">// more devices</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Set up kernel part of a page table.</span>
+pde_t<span class="token operator">*</span>
+<span class="token function">setupkvm</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  pde_t <span class="token operator">*</span>pgdir<span class="token punctuation">;</span>
+  <span class="token keyword">struct</span> <span class="token class-name">kmap</span> <span class="token operator">*</span>k<span class="token punctuation">;</span>
+
+  <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span>pgdir <span class="token operator">=</span> <span class="token punctuation">(</span>pde_t<span class="token operator">*</span><span class="token punctuation">)</span><span class="token function">kalloc</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token function">memset</span><span class="token punctuation">(</span>pgdir<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> PGSIZE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">P2V</span><span class="token punctuation">(</span>PHYSTOP<span class="token punctuation">)</span> <span class="token operator">></span> <span class="token punctuation">(</span><span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span>DEVSPACE<span class="token punctuation">)</span>
+    <span class="token function">panic</span><span class="token punctuation">(</span><span class="token string">"PHYSTOP too high"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">for</span><span class="token punctuation">(</span>k <span class="token operator">=</span> kmap<span class="token punctuation">;</span> k <span class="token operator">&lt;</span> <span class="token operator">&amp;</span>kmap<span class="token punctuation">[</span><span class="token function">NELEM</span><span class="token punctuation">(</span>kmap<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">;</span> k<span class="token operator">++</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">mappages</span><span class="token punctuation">(</span>pgdir<span class="token punctuation">,</span> k<span class="token operator">-></span>virt<span class="token punctuation">,</span> k<span class="token operator">-></span>phys_end <span class="token operator">-</span> k<span class="token operator">-></span>phys_start<span class="token punctuation">,</span>
+                <span class="token punctuation">(</span>uint<span class="token punctuation">)</span>k<span class="token operator">-></span>phys_start<span class="token punctuation">,</span> k<span class="token operator">-></span>perm<span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// Free a page table and all the physical memory pages</span>
+      <span class="token comment">// in the user part.</span>
+      <span class="token function">freevm</span><span class="token punctuation">(</span>pgdir<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> pgdir<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Allocate one page table for the machine for the kernel address</span>
+<span class="token comment">// space for scheduler processes.</span>
+<span class="token keyword">void</span>
+<span class="token function">kvmalloc</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  kpgdir <span class="token operator">=</span> <span class="token function">setupkvm</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">switchkvm</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Switch h/w page table register to the kernel-only page table,</span>
+<span class="token comment">// for when no process is running.</span>
+<span class="token keyword">void</span>
+<span class="token function">switchkvm</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  <span class="token function">lcr3</span><span class="token punctuation">(</span><span class="token function">V2P</span><span class="token punctuation">(</span>kpgdir<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token comment">// switch to the kernel page table</span>
+<span class="token punctuation">}</span></code></pre></div>
+<p>需要好好读一下上面这段代码的最上面的注释。对于<code class="language-text">kvmalloc</code>大致就是用<code class="language-text">setupkvm</code>做了一个对于kernel部分映射了的page table，然后用switch把这个page table赋值给<code class="language-text">%cr3</code>。这个时候就可以进行kernel部分的初始化了。</p>
+<p>做完kernel的初始化之后，进行user的部分。<code class="language-text">userinit()</code>中和page table相关的部分是：</p>
+<div class="gatsby-highlight" data-language="c"><pre class="language-c"><code class="language-c">  <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span>p<span class="token operator">-></span>pgdir <span class="token operator">=</span> <span class="token function">setupkvm</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    <span class="token function">panic</span><span class="token punctuation">(</span><span class="token string">"userinit: out of memory?"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">inituvm</span><span class="token punctuation">(</span>p<span class="token operator">-></span>pgdir<span class="token punctuation">,</span> _binary_initcode_start<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span>_binary_initcode_size<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre></div>
+<p>刚刚说过<code class="language-text">setupkvm</code>会把kernel的部分映射好。之后是<code class="language-text">inituvm</code>。这个函数会把<code class="language-text">initcode</code>（源码位于<code class="language-text">initcode.S</code>）这个编译好的2进制文件映射到其起始位置，它是第一个process的最开始的二进制部分。而实际上，<code class="language-text">initcode</code>的最开始是<code class="language-text">exec(init, argv)</code>。而在<code class="language-text">exec</code>的最后，有：</p>
+<div class="gatsby-highlight" data-language="c"><pre class="language-c"><code class="language-c">  <span class="token function">switchuvm</span><span class="token punctuation">(</span>curproc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">freevm</span><span class="token punctuation">(</span>oldpgdir<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre></div>
+<p>在<code class="language-text">switchuvm</code>中有给<code class="language-text">cr3</code>赋值：</p>
+<div class="gatsby-highlight" data-language="c"><pre class="language-c"><code class="language-c"><span class="token keyword">void</span>
+<span class="token function">switchuvm</span><span class="token punctuation">(</span><span class="token keyword">struct</span> <span class="token class-name">proc</span> <span class="token operator">*</span>p<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  <span class="token keyword">if</span><span class="token punctuation">(</span>p <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    <span class="token function">panic</span><span class="token punctuation">(</span><span class="token string">"switchuvm: no process"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span><span class="token punctuation">(</span>p<span class="token operator">-></span>kstack <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    <span class="token function">panic</span><span class="token punctuation">(</span><span class="token string">"switchuvm: no kstack"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span><span class="token punctuation">(</span>p<span class="token operator">-></span>pgdir <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    <span class="token function">panic</span><span class="token punctuation">(</span><span class="token string">"switchuvm: no pgdir"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token function">pushcli</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">mycpu</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-></span>gdt<span class="token punctuation">[</span>SEG_TSS<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">SEG16</span><span class="token punctuation">(</span>STS_T32A<span class="token punctuation">,</span> <span class="token operator">&amp;</span><span class="token function">mycpu</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-></span>ts<span class="token punctuation">,</span>
+                                <span class="token keyword">sizeof</span><span class="token punctuation">(</span><span class="token function">mycpu</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-></span>ts<span class="token punctuation">)</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">mycpu</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-></span>gdt<span class="token punctuation">[</span>SEG_TSS<span class="token punctuation">]</span><span class="token punctuation">.</span>s <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token function">mycpu</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-></span>ts<span class="token punctuation">.</span>ss0 <span class="token operator">=</span> SEG_KDATA <span class="token operator">&lt;&lt;</span> <span class="token number">3</span><span class="token punctuation">;</span>
+  <span class="token function">mycpu</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-></span>ts<span class="token punctuation">.</span>esp0 <span class="token operator">=</span> <span class="token punctuation">(</span>uint<span class="token punctuation">)</span>p<span class="token operator">-></span>kstack <span class="token operator">+</span> KSTACKSIZE<span class="token punctuation">;</span>
+  <span class="token comment">// setting IOPL=0 in eflags *and* iomb beyond the tss segment limit</span>
+  <span class="token comment">// forbids I/O instructions (e.g., inb and outb) from user space</span>
+  <span class="token function">mycpu</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-></span>ts<span class="token punctuation">.</span>iomb <span class="token operator">=</span> <span class="token punctuation">(</span>ushort<span class="token punctuation">)</span> <span class="token number">0xFFFF</span><span class="token punctuation">;</span>
+  <span class="token function">ltr</span><span class="token punctuation">(</span>SEG_TSS <span class="token operator">&lt;&lt;</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">lcr3</span><span class="token punctuation">(</span><span class="token function">V2P</span><span class="token punctuation">(</span>p<span class="token operator">-></span>pgdir<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// switch to process's address space</span>
+  <span class="token function">popcli</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre></div>
+<p>也就完成了user page table的初始化。</p>
+<p>说完了整个的大框架，我们来看一下每次用户代码需要进行新内存的分配的时候，比如当遇到page fault进入trap来分配新内存的时候（lazy page allocation）：</p>
+<div class="gatsby-highlight" data-language="c"><pre class="language-c"><code class="language-c">  <span class="token keyword">case</span> T_PGFLT<span class="token operator">:</span>
+  <span class="token punctuation">{</span>
+    <span class="token comment">// code from allocuvm</span>
+    uint newsz <span class="token operator">=</span> <span class="token function">myproc</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-></span>sz<span class="token punctuation">;</span>
+    uint a <span class="token operator">=</span> <span class="token function">PGROUNDDOWN</span><span class="token punctuation">(</span><span class="token function">rcr2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>a <span class="token operator">&lt;</span> newsz<span class="token punctuation">)</span><span class="token punctuation">{</span>
+      <span class="token keyword">char</span> <span class="token operator">*</span>mem <span class="token operator">=</span> <span class="token function">kalloc</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">if</span><span class="token punctuation">(</span>mem <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">cprintf</span><span class="token punctuation">(</span><span class="token string">"out of memory\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">break</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token function">memset</span><span class="token punctuation">(</span>mem<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> PGSIZE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token function">mappages</span><span class="token punctuation">(</span><span class="token function">myproc</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-></span>pgdir<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">char</span><span class="token operator">*</span><span class="token punctuation">)</span>a<span class="token punctuation">,</span> PGSIZE<span class="token punctuation">,</span> <span class="token function">V2P</span><span class="token punctuation">(</span>mem<span class="token punctuation">)</span><span class="token punctuation">,</span> PTE_W<span class="token operator">|</span>PTE_U<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">break</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span></code></pre></div>
+<p>最重要的就是<code class="language-text">kalloc</code>，<code class="language-text">memset</code>和<code class="language-text">mappages</code>了。<code class="language-text">memset</code>是包装了<code class="language-text">x86</code>的分配内存的函数，再次不提。</p>
+<div class="gatsby-highlight" data-language="c"><pre class="language-c"><code class="language-c"><span class="token comment">// Allocate one 4096-byte page of physical memory.</span>
+<span class="token comment">// Returns a pointer that the kernel can use.</span>
+<span class="token comment">// Returns 0 if the memory cannot be allocated.</span>
+<span class="token keyword">char</span><span class="token operator">*</span>
+<span class="token function">kalloc</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  <span class="token keyword">struct</span> <span class="token class-name">run</span> <span class="token operator">*</span>r<span class="token punctuation">;</span>
+
+  <span class="token keyword">if</span><span class="token punctuation">(</span>kmem<span class="token punctuation">.</span>use_lock<span class="token punctuation">)</span>
+    <span class="token function">acquire</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>kmem<span class="token punctuation">.</span>lock<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  r <span class="token operator">=</span> kmem<span class="token punctuation">.</span>freelist<span class="token punctuation">;</span>
+  <span class="token keyword">if</span><span class="token punctuation">(</span>r<span class="token punctuation">)</span>
+    kmem<span class="token punctuation">.</span>freelist <span class="token operator">=</span> r<span class="token operator">-></span>next<span class="token punctuation">;</span>  <span class="token comment">// 所有空内存的链表</span>
+  <span class="token keyword">if</span><span class="token punctuation">(</span>kmem<span class="token punctuation">.</span>use_lock<span class="token punctuation">)</span>
+    <span class="token function">release</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>kmem<span class="token punctuation">.</span>lock<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token keyword">char</span><span class="token operator">*</span><span class="token punctuation">)</span>r<span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre></div>
+<p><code class="language-text">kalloc</code>得到一个空page的头部地址，<code class="language-text">mappages</code>进行映射，所以归根到底所有的环境都会用同一个<code class="language-text">kmem</code>链表分配内存。</p>
+<h3>内存分配的小技巧</h3>
+<ul>
+<li>
+<p>lazy page allocation</p>
+<p>前面提到过，先不分配内存，触发page fault的时候再分配。</p>
+</li>
+<li>
+<p>copy on write</p>
+<p>这个在lab4里面有实现。大致是先不复制，把对应的page仅仅map上，然后给一种新的PTE状态，在触发写的trap的时候进行复制。</p>
+</li>
+<li>
+<p>one zero-filled page</p>
+<p>因为很多page不会写入，所以最开始可以分配给一个公共的zero page，如果出问题了，就创建新的。</p>
+</li>
+<li>
+<p>share kernel page mapping</p>
+<p>共享kernel page mapping。这个不知道咋实现呢...</p>
+</li>
+<li>
+<p>demanding paging</p>
+<p>现在的exec可能会把整个文件都加载到内存中，这样会很慢，并且有可能没必要。可以先分配page，并标记为on demand，on default从file中读取对应的page。会遇到的挑战就是如果文件比物理内存还大怎么办？下一条会给出解决方案。</p>
+</li>
+<li>
+<p>用比物理内存更大的虚拟内存</p>
+<p>有的时候可能需要比物理内存还大的内存。解决方法就是把内存中不常用的部分存在硬盘上。</p>
+<p>在硬盘和内存之间"page in" and out数据</p>
+<ul>
+<li>使用PTE来检测什么时候需要disk access</li>
+<li>用page table来找到least recent used disk block 并把其写回硬盘（LRU）</li>
+</ul>
+<p>当同时使用的内存小于RAM的时候，非常work。</p>
+</li>
+<li>
+<p>memory-mapped files</p>
+<p>通过load, store而不是read, write, lseek来access files以轻松访问文件的某一部分</p>
+<ul>
+<li>会使用<code class="language-text">mmap</code> system call</li>
+<li>用memory offset而不是seeking</li>
+</ul>
+</li>
+<li>
+<p>distributed shared memory</p>
+<p>用虚拟内存来假装物理内存 is shared between several machines on the network</p>
+<p>注意只有read only page可以复制，而能够写入的不能。</p>
+</li>
+</ul>
+<h3>The UVPD</h3>
+<p><img src="https://pdos.csail.mit.edu/6.828/2014/lec/vpt.png" alt="UVPD"></p>
+<p>用来让page table等访问到自己的。</p>
+<h2>Scheduling</h2>
+<p>请看<a href="https://zhuzilin.github.io/6.828-note9/">note9</a>和<a href="https://zhuzilin.github.io/6.828-note10/">note10</a>，感觉写的挺清楚的。</p></div></div></div></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/6.828-review/";window.webpackCompilationHash="5a11a2db5b88de6221a2";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"app":["/app-e43f66d12982cca97132.js"],"component---src-templates-blog-post-js":["/component---src-templates-blog-post-js-5e4dda773203dafed331.js"],"component---src-templates-tag-js":["/component---src-templates-tag-js-d1acf86f4e18b8c0dcd2.js"],"component---src-pages-404-js":["/component---src-pages-404-js-878df897f841789bef67.js"],"component---src-pages-about-js":["/component---src-pages-about-js-506f4e46f4969d8794ed.js"],"component---src-pages-index-js":["/component---src-pages-index-js-f4a7f10f1369c3a74d3a.js"],"component---src-pages-my-files-js":["/component---src-pages-my-files-js-04230e8e4e4d08c693fc.js"],"component---src-pages-tags-js":["/component---src-pages-tags-js-085b6299d45538ace545.js"]};/*]]>*/</script><script src="/webpack-runtime-2624e648f8e51c6abe7e.js" async=""></script><script src="/app-e43f66d12982cca97132.js" async=""></script><script src="/0-e5655ea3b793fcb8a9bd.js" async=""></script><script src="/2-cf06e27d29789fb70951.js" async=""></script><script src="/component---src-templates-blog-post-js-5e4dda773203dafed331.js" async=""></script><script src="/styles-b3b9a98f1384a6f8783d.js" async=""></script></body></html>

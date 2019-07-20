@@ -52,7 +52,7 @@
 <p>下面让我们来看看xv6的代码来学习一下它是怎么进行context switch的：</p>
 <p>进行两次context switch是为了简化cleaning up。</p>
 <p>我们没有讲义中提到的<code class="language-text">hog.c</code>，所以没办法用gdb进行调试，不过还是可以跟着调试的路子看代码。</p>
-<p>当开始发生context swtich的时候，会先通过时间中断触发<code class="language-text">trap()</code>中的这部分：</p>
+<p>当开始发生context switch的时候，会先通过时间中断触发<code class="language-text">trap()</code>中的这部分：</p>
 <div class="gatsby-highlight" data-language="c"><pre class="language-c"><code class="language-c">  <span class="token comment">// Force process to give up CPU on clock tick.</span>
   <span class="token comment">// If interrupts were on while locks held, would need to check nlock.</span>
   <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">myproc</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token function">myproc</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-></span>state <span class="token operator">==</span> RUNNING <span class="token operator">&amp;&amp;</span>

@@ -52,7 +52,9 @@
 </li>
 <li>
 <p>x86 paging hardware是如何翻译VA的？</p>
-<p>首先通过<code class="language-text">%cr3</code>找到PD的PA，从而可以加载PD，然后从VA的前10位找到对应的PT(page table)的PA，从而可以加载PT，然后用VA的之后10位找到PTE，PTE的前20位，也就是PPN加上VA的最后12位就得到了VA对应的PA。</p>
+<p>首先通过<code class="language-text">%cr3</code>找到PD的PA，从而可以加载PD；</p>
+<p>然后从VA的前10位找到对应的PT(page table)的PA，从而可以加载PT；</p>
+<p>然后用VA的之后10位找到PTE，PTE的前20位，也就是PPN加上VA的最后12位就得到了VA对应的PA。</p>
 </li>
 <li>
 <p>PTE中的flag</p>
@@ -80,8 +82,8 @@
 <ul>
 <li>还是要提一下，的确是有kernel直接跑在PA上的。</li>
 <li>有一些原因很好，一些很逊。</li>
-<li>硬件使得很难关闭page table</li>
-<li>kernel用user address很方便，但是可能会导致poort isolation between kernel/application</li>
+<li>硬件使得很难关闭page table ？？？</li>
+<li>kernel用user address很方便，但是可能会导致poor isolation between kernel/application</li>
 <li>如果地址是连续的，也会很方便。比如kernel has both 4Kbyte objects and 64Kbyte objects（没看懂这是啥意思）</li>
 <li>
 <p>如果没有page table，很容易有memory fragmentation（内存碎片？）</p>

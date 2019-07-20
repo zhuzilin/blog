@@ -54,6 +54,7 @@
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span></code></pre></div>
 <p><code class="language-text">sleep</code>的思路很简单，就是把<code class="language-text">p-&gt;state</code>设置为<code class="language-text">SLEEPING</code>然后释放掉当前的锁，把<code class="language-text">p-&gt;chan</code>设置为传入的channel，然后调用<code class="language-text">sched</code>也就是进行context switch。在返回的时候重新<code class="language-text">acquire</code>那个锁。</p>
+<p>需要注意的是，对于sleep来acquire的锁必须要只能用sleep进行acquire，也就是不能有一个函数直接就acquire了，不然的话这边锁刚一释放，那边就直接acquire肯定是不行的。如果前后运行两个sleep，第二个会因为第一个已经acquire了<code class="language-text">ptable</code>而卡在那个<code class="language-text">if</code>的地方。而进行wake之后，需要等第一个进程把<code class="language-text">ptable.lock</code>释放才行。而且还要注意最后的<code class="language-text">acquire(lk)</code>会在实际应用函数中被抵消，如下面<code class="language-text">iderw</code>的最后。</p>
 <p><strong>注意</strong>，在返回的时候应当是在<code class="language-text">ptable.lock</code>是被aquire的状态的，所以直到锁重新被获取前是不会有中断的。这也是实现sleep的非常重要的一点。</p>
 <p>然后是<code class="language-text">wakeup</code></p>
 <div class="gatsby-highlight" data-language="c"><pre class="language-c"><code class="language-c"><span class="token comment">// Wake up all processes sleeping on chan.</span>
