@@ -29,5 +29,11 @@ PasswordAuthentication yes
 passwd root
 ```
 
+之后重启ssh
+
+```bash
+/etc/init.d/ssh restart
+```
+
 最后在左边的导航栏中的MetaData中的ssh里面加入本机的公钥即可。
 
