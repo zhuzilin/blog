@@ -1,3 +1,7 @@
 blockquote {
     font-size: inherit!important;
 }
+
+p.info {
+    color: silver;
+}

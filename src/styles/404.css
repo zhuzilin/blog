@@ -1,0 +1,14 @@
+h1.notfound {
+    font-size: 100px;
+    display: table;
+    margin: auto;
+    vertical-align: middle;
+}
+
+h3.notfound {
+    font: 40px 'Fira Sans',sans-serif;
+    display: table;
+    margin: auto;
+    color: silver;
+    vertical-align: middle;
+}

@@ -11,9 +11,11 @@ export default ({ data }) => {
         <Layout>
             <div>
                 <h1>{post.frontmatter.title}</h1>
-                <p>date: {post.frontmatter.date.slice(0, 10)} <br/>
+                <p className="info">date: {post.frontmatter.date.slice(0, 10)} <br/>
                    tags: {post.frontmatter.tags.map(tag => 
-                            <Link to={`/tags/${_.kebabCase(tag)}`}>{tag}</Link>)}</p>
+                            <span>
+                              <Link to={`/tags/${_.kebabCase(tag)}`}>{tag}</Link>&nbsp;&nbsp;
+                            </span>)}</p>
                 <div dangerouslySetInnerHTML={{ __html: post.html }} />
             </div>
         </Layout>

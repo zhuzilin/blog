@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 // Components
 import { Link, graphql } from "gatsby"
 import Layout from "../components/layout"
+import '../styles/tag.css';
 
 const Tags = ({ pageContext, data }) => {
   const { tag } = pageContext
@@ -15,18 +16,18 @@ const Tags = ({ pageContext, data }) => {
   return (
     <Layout>
         <div>
-        <h1>{tagHeader}</h1>
-        <ul>
-            {edges.map(({ node }) => {
+        <p>{tagHeader}</p>
+            {edges.map(({ node }, i) => {
             const { slug } = node.fields
             const { title } = node.frontmatter
             return (
-                <li key={slug}>
-                <Link to={slug}>{title}</Link>
-                </li>
+                <h2 key={slug}>
+                  <Link to={slug}>
+                    {`${i+1}. ${title}`}
+                  </Link>
+                </h2>
             )
             })}
-        </ul>
         {/*
                 This links to a page that does not yet exist.
                 We'll come back to it!
