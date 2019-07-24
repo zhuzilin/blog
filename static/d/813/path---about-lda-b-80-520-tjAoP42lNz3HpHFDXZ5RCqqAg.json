@@ -1,1 +1,0 @@
-{"data":{"markdownRemark":{"html":"<p>A probabilistic topic model</p>\n<ul>\n<li>Learns distributions on words called “topics” shared by documents</li>\n<li>Learns a distribution on topics for each document</li>\n<li>Assigns every word in a document to a topic</li>\n</ul>","frontmatter":{"title":"About LDA and topic model"}}},"pageContext":{"slug":"/about-LDA/"}}
