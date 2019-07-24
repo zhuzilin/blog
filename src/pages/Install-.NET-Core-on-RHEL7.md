@@ -4,7 +4,7 @@ date: 2019-06-13 11:24:00
 tags: ["dotnet", "RHEL"]
 ---
 
-因为工作需要把一个项目从.NET Framework移到.NET Core，而公司给配的工作站是rethat，所以在这里记录一下安装的过程。
+因为工作需要把一个项目从.NET Framework移到.NET Core，而公司给配的工作站是redhat，所以在这里记录一下安装的过程。
 
 首先是下载，默认的`yum`下载出现了subscribe相关的问题，不知道该怎么解决，所以就采用了下载binary的方式。从[这里](https://dotnet.microsoft.com/download/dotnet-core/2.2)找了RHEL6的binary，并按照对应的指令运行：
 
