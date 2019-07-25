@@ -1,7 +1,7 @@
 import React from "react"
 import { css } from "@emotion/core"
 import { StaticQuery, Link, graphql } from "gatsby"
-
+import { Helmet } from "react-helmet"
 import { rhythm } from "../utils/typography"
 
 export default ({ children }) => (
@@ -22,6 +22,10 @@ export default ({ children }) => (
                 max-width: 800px;
                 padding: ${rhythm(2)};
                 padding-top: ${rhythm(1.5)};`}>
+          <Helmet>
+              <meta charSet="utf-8" />
+              <title>Zilin's Blog</title>
+          </Helmet>
           <Link to={`/`}>
               <h3 css={css`
                       margin-bottom: ${rhythm(2)};
