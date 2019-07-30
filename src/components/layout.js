@@ -19,7 +19,7 @@ export default ({ children }) => (
     render={data => (
       <div css={css`
                 margin: 0 auto;
-                max-width: 800px;
+                max-width: 900px;
                 padding: ${rhythm(2)};
                 padding-top: ${rhythm(1.5)};`}>
           <Helmet>

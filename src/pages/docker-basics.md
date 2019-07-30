@@ -190,7 +190,15 @@ sudo docker run -d -p 8080:80 --name nginx [image-id] nginx -g "daemon off;"
 
 这样就把容器的80端口绑定在了宿主机的8080端口上。这时访问`localhost:8080`就可以显示出`Hi, I am in your container`了。
 
-在`run`指令中还有一个非常使用的`-P`指令，用于把所有的容器内公开的指令随即绑定到某一个随机端口上。
+在`run`指令中还有一个非常使用的`-P`指令，用于把所有的容器内公开的指令绑定到某一个随机端口上。或者可以指定端口。
+
+另一个非常重要的选项是`--net`。当多个容器需要进行网络上的交互的时候，一般需要先
+
+```bash
+sudo docker network create xxx
+```
+
+这样之后在每个运行的container的run指令里面都加上`--net xxx`就可以相互访问了。不过访问的时候需要用`hostname:port`，而容器默认的hostname是容器ID相关的，挺复杂的，所以一般还要用`-h`来设置一下域名。注意这么链接的时候使用的是dockerfile里面的port，而不是`-p`开放的端口。
 
 ### Dockerfile的其余指令
 
