@@ -153,7 +153,7 @@ Subject: Searching for the meaning of life.
 <h4>POP3</h4>
 <p>POP3很简单。先在mail server的110端口创建TCP连接。当TCP连接创建，POP3有3个阶段：authorization, transaction and update。</p>
 <ol>
-<li>authorization: the user agent sends a username and password (in clear) to authenticate the user</li>
+<li>authorization: the user agent 发送用户名和密码(明文) 来进行验证</li>
 <li>transaction: agent retrieves messages and mark messages for deletion, remove deletion marks and obtain mail statistics.</li>
 <li>update: after client has issued the quit command, ending the POP3 session. At this point, the mail server deletes the messages that were marked for deletion.</li>
 </ol>
