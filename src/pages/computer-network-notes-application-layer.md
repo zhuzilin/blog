@@ -167,6 +167,20 @@ Server: Apache/1.3.0 (Unix)
 
 cache就可以返回原来的那份。
 
+### HTTPS
+
+SSL时TLS的早期版本名。
+
+认证过程：
+
+- client向server发送一个`ClientHello`消息，其中包含了TLS版本，可用的加密算法和压缩算法。
+- server向client返回一个`ServerHello`消息，其中包含了server的TLS版本，server选择的加密方法以及CA证书，证书中包含了公钥。客户端会用这个公钥对接下来的握手进行加密，直到协商生成一个新的对称的密钥。证书中还包含了CN(Common Name)，用于客户端验证身份。
+- client根据自己信任的CA列表验证服务器证书是否可信。如果可信，那么会生成一段伪随机数，用server发来的公钥进行加密。这串随机数会被用于生成新的对称密钥。
+- server用自己的私钥解密随机数，然后用随机数生成对称主密钥。
+- client发送`Finished`给server，并用对称密钥加密这次通讯的一个散列值。
+- server生成自己的hash，并解密client来的hash，如果两者对应向client发送`Finished`，也用对称密钥加密。
+- 之后，整个TLS对话都会使用对称密钥对HTTP内容进行加密
+
 ## SMTP (Simple Mail Transfer Protocol)
 
 为了讲解SMTP的基本操作，我们来看一下如果Alice要给Bob发一封邮件，会过几个步骤。
