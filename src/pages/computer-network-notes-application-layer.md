@@ -240,7 +240,7 @@ Bob 怎么从mail server中读取mail呢？注意Bob不能用SMTP来获取，因
 
 POP3很简单。先在mail server的110端口创建TCP连接。当TCP连接创建，POP3有3个阶段：authorization, transaction and update。
 
-1. authorization: the user agent sends a username and password (in clear) to authenticate the user
+1. authorization: the user agent 发送用户名和密码(明文) 来进行验证
 2. transaction: agent retrieves messages and mark messages for deletion, remove deletion marks and obtain mail statistics.
 3. update: after client has issued the quit command, ending the POP3 session. At this point, the mail server deletes the messages that were marked for deletion.
 
