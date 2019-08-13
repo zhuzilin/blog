@@ -6,13 +6,15 @@ tags: ["Web"]
 
 ## Type of CORS
 
+First of all, it is very important that CORS error is a restriction from **browser**. And when a server is sending some request to other server, no CORS error will happens. Therefore, we can use our server (the code we can modify and control) as a medium to connect frontend and some resource from other resources. And the following codes are all for our intermediate server.
+
 There are mainly two kinds for CORS. CORS for simple request and CORS for preflight request.
 
 ## Simple Request
 
 Simple request is GET request or POST request with Content-Type in one of application/x-www-form-urlencoded, multipart/form-data, text/plain. Note that the commonly used *application*/json is not simple request. Those Content-Type are exceptions due to historical legacy.
 
-For simple request we only need to add an "Origin: http://api.bob.com" in the request header.
+For simple request we only need to add an `Origin: http://api.bob.com` in the request header.
 
 > ```http
 > GET /cors HTTP/1.1
@@ -23,7 +25,7 @@ For simple request we only need to add an "Origin: http://api.bob.com" in the re
 > User-Agent: Mozilla/5.0...
 > ```
 
- And add "Access-Control-Allow-Origin: http://api.bob.com" in the response.
+ And add `Access-Control-Allow-Origin: http://api.bob.com` in the response.
 
 > ```http
 > Access-Control-Allow-Origin: http://api.bob.com
@@ -32,7 +34,7 @@ For simple request we only need to add an "Origin: http://api.bob.com" in the re
 > Content-Type: text/html; charset=utf-8
 > ```
 
-Or simply use "Access-Control-Allow-Origin: *" in the response.
+Or simply use `Access-Control-Allow-Origin: *` in the response.
 
 If hoping to add cookie to the request, we need to add "withCredentials: true" in the request and "Access-Control-Allow-Credentials: true" in the server. Note that when sending cookie, we cannot set "Access-Control-Allow-Origin" as "*", but the domain of client.
 
