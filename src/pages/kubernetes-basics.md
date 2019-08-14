@@ -1,5 +1,5 @@
 ---
-title: docker basics
+title: kubernetes basics
 date: 2019-07-29 11:54:00
 tags: ["kubernetes", "container"]
 ---
