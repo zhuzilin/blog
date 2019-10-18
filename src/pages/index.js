@@ -57,7 +57,10 @@ export const query = graphql`
         title
       }
     }
-    allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
+    allMarkdownRemark(
+      filter: { fields: { draft: { eq: false } } }
+      sort: { fields: [frontmatter___date], order: DESC }
+      ) {
       totalCount
       edges {
         node {

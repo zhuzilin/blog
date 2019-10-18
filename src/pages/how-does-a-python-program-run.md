@@ -14,7 +14,7 @@ First, let us be clear that the statement "Python is a interpreted language" is 
 >
 > [source](https://en.wikipedia.org/wiki/Interpreted_language)
 
-Therefore, what I will focusing on is the popular implementation for Python, mainly CPython. What will CPython do is basically:
+Therefore, what I will focus on is the popular implementation for Python, mainly CPython. What CPython does is basically:
 
 > CPython reads python source code, and compiles it into python byte code, which is stored in the `.pyc` file. It then executes that code using a bytecode interpreter. This design separates the parsing of python from the execution, allowing both parts of the interpreter to be simpler.
 >
@@ -41,9 +41,9 @@ Apparently, there is huge difference between CPython procedure and that of C. An
 
 ## Memory management
 
-In C, when calling a function what the machine actually do is allocating a piece of memory in stack, called frame and when the function returns, the frame will be freed and some register would help the program back to where it should be before the calling.
+In C, when calling a function, the machine will allocate a piece of memory in stack, called frame and when the function returns, the frame will be freed and some register would help the program back to where it should be before the calling.
 
-Things would be different in Python. We could see that from the generator. In each time we called a generator, it could save a internal state even if the function is returned. This could not be achieved if the memory is used the same way as C. 
+Things would be different in Python. We could see that from the **generator**. In each time we called a generator, it could save a internal state even if the function is returned. This could not be achieved if the memory is used the same way as C. 
 
 In fact, because everything in Python is a object and  from the [documentation](https://docs.python.org/3.7/c-api/memory.html):
 

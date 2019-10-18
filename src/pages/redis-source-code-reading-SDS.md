@@ -1,5 +1,5 @@
 ---
-title: redis源码阅读1 —— SDS
+title: Redis源码阅读 —— SDS
 date: 2019-08-14 10:54:00
 tags: ["redis", "C"]
 ---
