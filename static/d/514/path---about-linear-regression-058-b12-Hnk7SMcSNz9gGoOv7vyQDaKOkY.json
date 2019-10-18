@@ -1,0 +1,1 @@
+{"errors":[{"message":"KaTeX parse error: No such environment: align at position 7: \\begin{̲a̲l̲i̲g̲n̲}̲\nw_{MAP}&=arg\\m…","locations":[{"line":5,"column":5}],"path":["markdownRemark","html"]}],"data":{"markdownRemark":{"html":null,"frontmatter":{"title":"About Linear Regression"}}},"pageContext":{"slug":"/about-linear-regression/"}}
