@@ -1,1 +1,0 @@
-{"data":{"markdownRemark":{"html":"<h2>Boot Loader</h2>\n<p>首先当机器启动的时候，会自动加载BIOS。BIOS会检查有无bootable disk，如果有的话，会加载其boot loader（实际上就是加载boot loader）的ELF。</p>","frontmatter":{"title":"6.828 总结"}}},"pageContext":{"slug":"/6.828-review/"}}
