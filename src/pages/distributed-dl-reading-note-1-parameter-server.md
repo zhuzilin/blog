@@ -1,6 +1,6 @@
 ---
 title: 分布式深度学习阅读笔记1： Parameter Server
-date: 2019.10.27 11:00:00
+date: 2019-10-27 11:00:00
 draft: true
 ---
 
