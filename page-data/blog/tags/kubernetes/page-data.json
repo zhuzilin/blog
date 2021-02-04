@@ -1,0 +1,1 @@
+{"componentChunkName":"component---src-templates-tag-js","path":"/blog/tags/kubernetes/","webpackCompilationHash":"d15a31acc5afe58c139f","result":{"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/kubernetes-basics/"},"frontmatter":{"title":"kubernetes basics"}}}]}},"pageContext":{"isCreatedByStatefulCreatePages":false,"tag":"kubernetes"}}}
