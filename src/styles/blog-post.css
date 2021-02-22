@@ -1,8 +1,3 @@
 p.info {
   color: silver;
 }
-
-code[class*="language-"],
-pre[class*="language-"] {
-  font-size: none !important;;
-}
