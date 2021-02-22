@@ -6,3 +6,7 @@ blockquote {
 p.info {
     color: silver;
 }
+
+p {
+    font-family: Simsun;
+}
