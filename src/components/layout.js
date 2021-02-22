@@ -38,7 +38,8 @@ export default ({ children }) => (
         <h4 css={css`
             margin-bottom: ${rhythm(2)};
             display: inline-block;
-            font-style: normal;`}>
+            font-style: normal;
+            color: #994000`}>
           about
         </h4>
       </Link>
