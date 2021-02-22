@@ -34,9 +34,13 @@ export default ({ children }) => (
           {data.site.siteMetadata.title}
         </h3>
       </Link>
-      <Link to={`/about/`}
-        css={css`float: right;`}>
-        about
+      <Link to={`/about/`} css={css`float: right`}>
+        <h4 css={css`
+            margin-bottom: ${rhythm(2)};
+            display: inline-block;
+            font-style: normal;`}>
+          about
+        </h4>
       </Link>
       {children}
     </div>
