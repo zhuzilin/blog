@@ -12,16 +12,6 @@ const theme = {
   baseLineHeight: 1.44,
   scaleRatio: 2.15,
   blockMarginBottom: 0.75,
-  googleFonts: [
-    {
-      name: "Playfair Display",
-      styles: ["700"],
-    },
-    {
-      name: "Fira Sans",
-      styles: ["400", "400i", "700", "700i"],
-    },
-  ],
   headerFontFamily: ["SimHei", "Universe", "sans-serif"],
   bodyFontFamily: ["SimSun", "Helvetica", "serif"],
   headerColor: "hsla(0,0%,0%,1)",
@@ -34,9 +24,7 @@ const theme = {
       color: "#9f392b",
     },
     blockquote: {
-      ...scale(1 / 5),
       color: gray(41),
-      fontStyle: "italic",
       paddingLeft: rhythm(13 / 16),
       marginLeft: 0,
       borderLeft: `${rhythm(3 / 16)} solid ${gray(80)}`,

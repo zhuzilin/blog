@@ -1,8 +1,8 @@
-blockquote {
-    font-size: inherit!important;
-    font-style: normal;
+p.info {
+  color: silver;
 }
 
-p.info {
-    color: silver;
+code[class*="language-"],
+pre[class*="language-"] {
+  font-size: none !important;;
 }
