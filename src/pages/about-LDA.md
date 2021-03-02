@@ -112,4 +112,5 @@ It is common to use Gibbs sampling to solve the LDA rather than EM. We will talk
 
 ## Reference
 
-1. <https://www.zhihu.com/search?type=content&q=LDA>
+1. https://zhuanlan.zhihu.com/p/31470216
+

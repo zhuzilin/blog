@@ -2,7 +2,6 @@
 title: 15-745 spring 2019 assigment1
 date: 2019-10-16 12:16:00
 tags: ["compiler", "llvm", "15-745"]
-draft: true
 ---
 
 ## 1 Introduction
@@ -11,13 +10,13 @@ draft: true
 
 ## 2 LLVM project
 
-### 2.1 Obtaining the System Image
+## 2.1 Obtaining the System Image
 
 安装virtualbox 5.2以及对应版本的增强功能。
 
 从http://www.cs.cmu.edu/~15745/vm-images/15745-S19Lubuntu.ova下载作业需要的image并把相关代码放在共享文件夹里。注意如果要使用共享文件夹、共享粘贴板之类的功能需要安装virtualbox的增强功能。
 
-### 2.2 Create a Pass
+## 2.2 Create a Pass
 
 把`loop.c`复制到`FunctionInfo/loop.c`，并将其编译为LLVM bytecode object (`loop.bc`)
 
@@ -395,4 +394,51 @@ char LocalOpts::ID = 0;
 // 4: if a pass is an analysis pass, for example dominator tree pass, then true is supplied as the fourth argument.
 static RegisterPass<LocalOpts> X("local-opts", "15745: Local Optimization", false, false);
 ```
+
+## 3 Homework Questions
+
+## 3.1 CFG Basics
+
+```
+--------B1--------
+	x = 50
+	y = 8
+	z = 234
+--------B2--------
+L1: if (x < z) { goto L2 }
+--------B3--------
+	x = x + 1
+	goto L1
+--------B4--------
+L2: y = 89
+--------B5--------
+	if (z > x) { goto L3 }
+--------B6--------
+	z = 65
+	return z
+--------B7--------
+L3: y = x + 1
+	if (z < x) { goto L4 }
+--------B8--------
+	x = 25
+--------B9--------
+L4: y = x + z
+	switch (y) { 334: goto L5 | default: goto L6 }
+--------B10-------
+L5: print("failure")
+L6: y = 65
+	return y
+```
+
+## 3.2 Available Expressions
+
+![figure2](https://i.imgur.com/mPg6Nqb.png)
+
+| BB   | GEN      | KILL     | IN                                  | OUT                                      |
+| ---- | -------- | -------- | ----------------------------------- | ---------------------------------------- |
+| 1    | c+d, b*d |          |                                     | c+d, b*d                                 |
+| 2    | e+b, c+a | c+d      | c+d, b*d                            | e+b, c+a, b*d                            |
+| 3    | b+a, a+d | e+b, c+a | e+b, c+a, b*d                       | b+a, a+d, b*d                            |
+| 4    | c*c, b+d |          | e+b, c+a, b*d                       | c\*c, b+d, e+b, c+a, b\*d                |
+| 5    | i+2      |          | c\*c, b+d, e+b, c+a, b\*d, b+a, a+d | c\*c, b+d, e+b, c+a, b\*d, b+a, a+d, i+2 |
 

@@ -10,7 +10,7 @@
     "build": "gatsby build",
     "serve": "gatsby serve",
     "test": "echo \"Write tests! -> https://gatsby.app/unit-testing\"",
-    "deploy": "gatsby build && gh-pages -d public -b master"
+    "deploy": "gatsby build --prefix-paths && gh-pages -d public -b master"
   },
   "dependencies": {
     "@emotion/core": "^10.0.6",
@@ -24,21 +24,20 @@
     "gatsby-source-filesystem": "^2.0.18",
     "gatsby-transformer-remark": "^2.2.2",
     "katex": "^0.10.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "prismjs": "^1.15.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-helmet": "^5.2.1",
     "react-typography": "^0.16.18",
-    "typography": "^0.16.18",
-    "typography-theme-kirkham": "^0.16.18"
+    "typography": "^0.16.18"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gatsbyjs/gatsby-starter-hello-world"
+    "url": "https://github.com/zhuzilin/blog"
   },
   "bugs": {
-    "url": "https://github.com/gatsbyjs/gatsby/issues"
+    "url": "https://github.com/zhuzilin/blog/issues"
   },
   "devDependencies": {
     "gh-pages": "^2.0.1"
