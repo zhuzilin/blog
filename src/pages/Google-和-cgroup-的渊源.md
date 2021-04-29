@@ -1,7 +1,7 @@
 ---
 title: Google 和 cgroup 的渊源
 date: 2021-04-28 22:41:00
-tags: ["js", "gatsby", "随感"]
+tags: ["linux", "container"]
 ---
 
 今天看王益大佬的[知乎文章](https://zhuanlan.zhihu.com/p/368676698)的时候，无意间了解到 cgroups 主要是由 google 的两名工程师 Paul Menage 和 Rohit Seth 在 2006 ~ 2008 年贡献给 Linux kernel 的... 又一次感觉到 google, fb, 微软这些公司和我们玩的不是一个游戏... 本文主要记录一下我追踪到的当年他们提出 cgroups 的一些想法。
