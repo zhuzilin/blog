@@ -12,13 +12,19 @@ const theme = {
   baseLineHeight: 1.44,
   scaleRatio: 2.15,
   blockMarginBottom: 0.75,
-  headerFontFamily: ["SimHei", "Universe", "sans-serif"],
-  bodyFontFamily: ["SimSun", "Helvetica", "serif"],
+  headerFontFamily: ["SimHei", "Quattrocento Sans", "sans-serif"],
+  bodyFontFamily: ["SimSun", "Quattrocento Sans", "serif"],
+  googleFonts: [
+    {
+      name: "Quattrocento Sans",
+      styles: ["Regular 400", "Bold 700"],
+    }
+  ],
   headerColor: "hsla(0,0%,0%,1)",
   bodyColor: "hsla(0,0%,0%,0.8)",
   headerWeight: 500,
   bodyWeight: 400,
-  boldWeight: 600,
+  boldWeight: 700,
   overrideStyles: ({ adjustFontSizeTo, scale, rhythm }, options) => ({
     a: {
       color: "#9f392b",
