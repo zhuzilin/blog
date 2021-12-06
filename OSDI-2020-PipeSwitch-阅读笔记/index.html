@@ -4,220 +4,220 @@
 <h2>C++ 代码</h2>
 <h3>allocateSharedCache</h3>
 <p>就是分配一段显存在 <code class="language-text">PIPESWITCH_shared_ptr</code>，大小为 12GB。</p>
-<div class="gatsby-highlight" data-language="c++"><pre class="language-c++"><code class="language-c++">#define SIZE_SHARED_CACHE (12 * 1024UL * 1024UL * 1024UL) // PipeSwitch
+<div class="gatsby-highlight" data-language="cpp"><pre class="language-cpp"><code class="language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> SIZE_SHARED_CACHE (12 * 1024UL * 1024UL * 1024UL) </span><span class="token comment">// PipeSwitch</span>
 
-  /* PipeSwitch: allocate shared GPU memory */
-  void allocateSharedCache() {
-    std::lock_guard&lt;std::recursive_mutex&gt; lock(mutex);
-    cudaError_t err = cudaMalloc(&amp;PIPESWITCH_shared_ptr, SIZE_SHARED_CACHE);
-    if (err != cudaSuccess) {
-      perror(&quot;allocate_shared_cache&quot;); 
-      exit(EXIT_FAILURE); 
-    }
-  }</code></pre></div>
+  <span class="token comment">/* PipeSwitch: allocate shared GPU memory */</span>
+  <span class="token keyword">void</span> <span class="token function">allocateSharedCache</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    std<span class="token operator">::</span>lock_guard<span class="token operator">&lt;</span>std<span class="token operator">::</span>recursive_mutex<span class="token operator">></span> <span class="token function">lock</span><span class="token punctuation">(</span>mutex<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    cudaError_t err <span class="token operator">=</span> <span class="token function">cudaMalloc</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>PIPESWITCH_shared_ptr<span class="token punctuation">,</span> SIZE_SHARED_CACHE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>err <span class="token operator">!=</span> cudaSuccess<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"allocate_shared_cache"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+      <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span></code></pre></div>
 <h3>sendSharedCache</h3>
 <p>获取一个跨进程的 handle，并把这个 handle 发出去。</p>
-<div class="gatsby-highlight" data-language="c++"><pre class="language-c++"><code class="language-c++">  /* PipeSwitch: send shared GPU memory */
-  void sendSharedCache() {
-    std::lock_guard&lt;std::recursive_mutex&gt; lock(mutex);
-    cudaIpcMemHandle_t shared_cache_handle;
+<div class="gatsby-highlight" data-language="cpp"><pre class="language-cpp"><code class="language-cpp">  <span class="token comment">/* PipeSwitch: send shared GPU memory */</span>
+  <span class="token keyword">void</span> <span class="token function">sendSharedCache</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    std<span class="token operator">::</span>lock_guard<span class="token operator">&lt;</span>std<span class="token operator">::</span>recursive_mutex<span class="token operator">></span> <span class="token function">lock</span><span class="token punctuation">(</span>mutex<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    cudaIpcMemHandle_t shared_cache_handle<span class="token punctuation">;</span>
 
-    // Pack CUDA pointer
-    cudaError_t err = cudaIpcGetMemHandle(&amp;shared_cache_handle, PIPESWITCH_shared_ptr);
-    if (err != cudaSuccess) {
-      perror(&quot;pack_shared_cache&quot;); 
-      exit(EXIT_FAILURE); 
-    }
+    <span class="token comment">// Pack CUDA pointer</span>
+    cudaError_t err <span class="token operator">=</span> <span class="token function">cudaIpcGetMemHandle</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>shared_cache_handle<span class="token punctuation">,</span> PIPESWITCH_shared_ptr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>err <span class="token operator">!=</span> cudaSuccess<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"pack_shared_cache"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+      <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    <span class="token punctuation">}</span>
 
-    // Accept connection
-    int server_fd, conn_fd, valread; 
-    int opt = 1;
-    struct sockaddr_in address; 
-    int addrlen = sizeof(address);
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) { 
-        perror(&quot;socket failed&quot;); 
-        exit(EXIT_FAILURE); 
-    } 
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &amp;opt, sizeof(opt))) { 
-        perror(&quot;setsockopt&quot;); 
-        exit(EXIT_FAILURE); 
-    } 
-    address.sin_family = AF_INET; 
-    address.sin_addr.s_addr = INADDR_ANY; 
-    address.sin_port = htons( PORT ); 
-    if (bind(server_fd, (struct sockaddr *)&amp;address,  sizeof(address)) &lt; 0) { 
-        perror(&quot;bind failed&quot;); 
-        exit(EXIT_FAILURE); 
-    }
-    if (listen(server_fd, 1) &lt; 0) { 
-        perror(&quot;listen&quot;); 
-        exit(EXIT_FAILURE); 
-    } 
-    if ((conn_fd = accept(server_fd, (struct sockaddr *)&amp;address, (socklen_t*)&amp;addrlen)) &lt; 0) { 
-        perror(&quot;accept&quot;); 
-        exit(EXIT_FAILURE); 
-    }
+    <span class="token comment">// Accept connection</span>
+    <span class="token keyword">int</span> server_fd<span class="token punctuation">,</span> conn_fd<span class="token punctuation">,</span> valread<span class="token punctuation">;</span> 
+    <span class="token keyword">int</span> opt <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> <span class="token class-name">sockaddr_in</span> address<span class="token punctuation">;</span> 
+    <span class="token keyword">int</span> addrlen <span class="token operator">=</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>address<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>server_fd <span class="token operator">=</span> <span class="token function">socket</span><span class="token punctuation">(</span>AF_INET<span class="token punctuation">,</span> SOCK_STREAM<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> 
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"socket failed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+        <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    <span class="token punctuation">}</span> 
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">setsockopt</span><span class="token punctuation">(</span>server_fd<span class="token punctuation">,</span> SOL_SOCKET<span class="token punctuation">,</span> SO_REUSEADDR <span class="token operator">|</span> SO_REUSEPORT<span class="token punctuation">,</span> <span class="token operator">&amp;</span>opt<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>opt<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> 
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"setsockopt"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+        <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    <span class="token punctuation">}</span> 
+    address<span class="token punctuation">.</span>sin_family <span class="token operator">=</span> AF_INET<span class="token punctuation">;</span> 
+    address<span class="token punctuation">.</span>sin_addr<span class="token punctuation">.</span>s_addr <span class="token operator">=</span> INADDR_ANY<span class="token punctuation">;</span> 
+    address<span class="token punctuation">.</span>sin_port <span class="token operator">=</span> <span class="token function">htons</span><span class="token punctuation">(</span> PORT <span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">bind</span><span class="token punctuation">(</span>server_fd<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">struct</span> <span class="token class-name">sockaddr</span> <span class="token operator">*</span><span class="token punctuation">)</span><span class="token operator">&amp;</span>address<span class="token punctuation">,</span>  <span class="token keyword">sizeof</span><span class="token punctuation">(</span>address<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> 
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"bind failed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+        <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">listen</span><span class="token punctuation">(</span>server_fd<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> 
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"listen"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+        <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    <span class="token punctuation">}</span> 
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>conn_fd <span class="token operator">=</span> <span class="token function">accept</span><span class="token punctuation">(</span>server_fd<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">struct</span> <span class="token class-name">sockaddr</span> <span class="token operator">*</span><span class="token punctuation">)</span><span class="token operator">&amp;</span>address<span class="token punctuation">,</span> <span class="token punctuation">(</span>socklen_t<span class="token operator">*</span><span class="token punctuation">)</span><span class="token operator">&amp;</span>addrlen<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> 
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"accept"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+        <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    <span class="token punctuation">}</span>
 
-    // Send the packed pointer
-    write(conn_fd, (void*)(&amp;shared_cache_handle), sizeof(cudaIpcMemHandle_t));
+    <span class="token comment">// Send the packed pointer</span>
+    <span class="token function">write</span><span class="token punctuation">(</span>conn_fd<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>shared_cache_handle<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>cudaIpcMemHandle_t<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    close(conn_fd);
-    close(server_fd);
-  }</code></pre></div>
+    <span class="token function">close</span><span class="token punctuation">(</span>conn_fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">close</span><span class="token punctuation">(</span>server_fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span></code></pre></div>
 <h3>recvSharedCache</h3>
-<div class="gatsby-highlight" data-language="c++"><pre class="language-c++"><code class="language-c++">  /* PipeSwitch: recv shared GPU memory */
-  void recvSharedCache() {
-    std::lock_guard&lt;std::recursive_mutex&gt; lock(mutex);
-    cudaIpcMemHandle_t shared_cache_handle;
+<div class="gatsby-highlight" data-language="cpp"><pre class="language-cpp"><code class="language-cpp">  <span class="token comment">/* PipeSwitch: recv shared GPU memory */</span>
+  <span class="token keyword">void</span> <span class="token function">recvSharedCache</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    std<span class="token operator">::</span>lock_guard<span class="token operator">&lt;</span>std<span class="token operator">::</span>recursive_mutex<span class="token operator">></span> <span class="token function">lock</span><span class="token punctuation">(</span>mutex<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    cudaIpcMemHandle_t shared_cache_handle<span class="token punctuation">;</span>
 
-    // Connect
-    int conn_fd = 0; 
-    struct sockaddr_in serv_addr; 
-    if ((conn_fd = socket(AF_INET, SOCK_STREAM, 0)) &lt; 0) { 
-        printf(&quot;\n Socket creation error \n&quot;); 
-        exit(EXIT_FAILURE); 
-    }
-    serv_addr.sin_family = AF_INET; 
-    serv_addr.sin_port = htons(PORT); 
-    if(inet_pton(AF_INET, &quot;127.0.0.1&quot;, &amp;serv_addr.sin_addr) &lt;= 0) { 
-        printf(&quot;\nInvalid address/ Address not supported \n&quot;); 
-        exit(EXIT_FAILURE); 
-    }
-    if (connect(conn_fd, (struct sockaddr *)&amp;serv_addr, sizeof(serv_addr)) &lt; 0) { 
-        printf(&quot;\nConnection Failed \n&quot;); 
-        exit(EXIT_FAILURE); 
-    }
+    <span class="token comment">// Connect</span>
+    <span class="token keyword">int</span> conn_fd <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> 
+    <span class="token keyword">struct</span> <span class="token class-name">sockaddr_in</span> serv_addr<span class="token punctuation">;</span> 
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>conn_fd <span class="token operator">=</span> <span class="token function">socket</span><span class="token punctuation">(</span>AF_INET<span class="token punctuation">,</span> SOCK_STREAM<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> 
+        <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"\n Socket creation error \n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+        <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    <span class="token punctuation">}</span>
+    serv_addr<span class="token punctuation">.</span>sin_family <span class="token operator">=</span> AF_INET<span class="token punctuation">;</span> 
+    serv_addr<span class="token punctuation">.</span>sin_port <span class="token operator">=</span> <span class="token function">htons</span><span class="token punctuation">(</span>PORT<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">inet_pton</span><span class="token punctuation">(</span>AF_INET<span class="token punctuation">,</span> <span class="token string">"127.0.0.1"</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>serv_addr<span class="token punctuation">.</span>sin_addr<span class="token punctuation">)</span> <span class="token operator">&lt;=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> 
+        <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"\nInvalid address/ Address not supported \n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+        <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">connect</span><span class="token punctuation">(</span>conn_fd<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">struct</span> <span class="token class-name">sockaddr</span> <span class="token operator">*</span><span class="token punctuation">)</span><span class="token operator">&amp;</span>serv_addr<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>serv_addr<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> 
+        <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"\nConnection Failed \n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+        <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    <span class="token punctuation">}</span>
 
-    // Receive packed pointer
-    read(conn_fd, (void*)(&amp;shared_cache_handle), sizeof(cudaIpcMemHandle_t)); 
+    <span class="token comment">// Receive packed pointer</span>
+    <span class="token function">read</span><span class="token punctuation">(</span>conn_fd<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>shared_cache_handle<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>cudaIpcMemHandle_t<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
     
-    // Extract the pointer
-    cudaError_t err = cudaIpcOpenMemHandle(
-      	&amp;PIPESWITCH_shared_ptr, shared_cache_handle, cudaIpcMemLazyEnablePeerAccess);
-    if (err != cudaSuccess) {
-      perror(&quot;extract_shared_cache&quot;); 
-      exit(EXIT_FAILURE); 
-    }
+    <span class="token comment">// Extract the pointer</span>
+    cudaError_t err <span class="token operator">=</span> <span class="token function">cudaIpcOpenMemHandle</span><span class="token punctuation">(</span>
+      	<span class="token operator">&amp;</span>PIPESWITCH_shared_ptr<span class="token punctuation">,</span> shared_cache_handle<span class="token punctuation">,</span> cudaIpcMemLazyEnablePeerAccess<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>err <span class="token operator">!=</span> cudaSuccess<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"extract_shared_cache"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+      <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    <span class="token punctuation">}</span>
 
-    close(conn_fd);
-  }</code></pre></div>
+    <span class="token function">close</span><span class="token punctuation">(</span>conn_fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span></code></pre></div>
 <h3>insertSharedCache</h3>
-<div class="gatsby-highlight" data-language="c++"><pre class="language-c++"><code class="language-c++">  /* PipeSwitch: insert shared GPU memory to large block pool */
-    void insertSharedCache(size_t size, size_t offset) {
-    std::lock_guard&lt;std::recursive_mutex&gt; lock(mutex);
-    int device;
-    C10_CUDA_CHECK(cudaGetDevice(&amp;device));
-    Block* block = new Block(
-      device, 
-      cuda::getCurrentCUDAStream(device), 
-      size, 
-      &amp;large_blocks, 
-      static_cast&lt;char*&gt;(PIPESWITCH_shared_ptr) + offset);
-    // allocated_size += size;
-    large_blocks.insert(block);
+<div class="gatsby-highlight" data-language="cpp"><pre class="language-cpp"><code class="language-cpp">  <span class="token comment">/* PipeSwitch: insert shared GPU memory to large block pool */</span>
+    <span class="token keyword">void</span> <span class="token function">insertSharedCache</span><span class="token punctuation">(</span>size_t size<span class="token punctuation">,</span> size_t offset<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    std<span class="token operator">::</span>lock_guard<span class="token operator">&lt;</span>std<span class="token operator">::</span>recursive_mutex<span class="token operator">></span> <span class="token function">lock</span><span class="token punctuation">(</span>mutex<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> device<span class="token punctuation">;</span>
+    <span class="token function">C10_CUDA_CHECK</span><span class="token punctuation">(</span><span class="token function">cudaGetDevice</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>device<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    Block<span class="token operator">*</span> block <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">Block</span><span class="token punctuation">(</span>
+      device<span class="token punctuation">,</span> 
+      cuda<span class="token operator">::</span><span class="token function">getCurrentCUDAStream</span><span class="token punctuation">(</span>device<span class="token punctuation">)</span><span class="token punctuation">,</span> 
+      size<span class="token punctuation">,</span> 
+      <span class="token operator">&amp;</span>large_blocks<span class="token punctuation">,</span> 
+      <span class="token keyword">static_cast</span><span class="token operator">&lt;</span><span class="token keyword">char</span><span class="token operator">*</span><span class="token operator">></span><span class="token punctuation">(</span>PIPESWITCH_shared_ptr<span class="token punctuation">)</span> <span class="token operator">+</span> offset<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// allocated_size += size;</span>
+    large_blocks<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>block<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    get_stats_for_device(device).increaseCached(size);
-    return;
-  }</code></pre></div>
+    <span class="token function">get_stats_for_device</span><span class="token punctuation">(</span>device<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">increaseCached</span><span class="token punctuation">(</span>size<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span></code></pre></div>
 <h3>clearSharedCache</h3>
-<div class="gatsby-highlight" data-language="c++"><pre class="language-c++"><code class="language-c++">  /* PipeSwitch: clear shared GPU memory */
-  void clearSharedCache() {
-    std::lock_guard&lt;std::recursive_mutex&gt; lock(mutex);
+<div class="gatsby-highlight" data-language="cpp"><pre class="language-cpp"><code class="language-cpp">  <span class="token comment">/* PipeSwitch: clear shared GPU memory */</span>
+  <span class="token keyword">void</span> <span class="token function">clearSharedCache</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    std<span class="token operator">::</span>lock_guard<span class="token operator">&lt;</span>std<span class="token operator">::</span>recursive_mutex<span class="token operator">></span> <span class="token function">lock</span><span class="token punctuation">(</span>mutex<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    int device;
-    C10_CUDA_CHECK(cudaGetDevice(&amp;device));
-    cudaStream_t stream = cuda::getCurrentCUDAStream(device);
+    <span class="token keyword">int</span> device<span class="token punctuation">;</span>
+    <span class="token function">C10_CUDA_CHECK</span><span class="token punctuation">(</span><span class="token function">cudaGetDevice</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>device<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    cudaStream_t stream <span class="token operator">=</span> cuda<span class="token operator">::</span><span class="token function">getCurrentCUDAStream</span><span class="token punctuation">(</span>device<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    std::cout &lt;&lt; &quot;Begin Clear&quot; &lt;&lt; std::endl;
-    auto it = large_blocks.begin();
-    while (it != large_blocks.end()) {
-      Block* block = *it;
-      // 这里没有 prev 没有 next 说明是没有进行切分的
-      // 同时 stream 要是 PipeSwitch 里面设置的 cuda_stream_for_parameter
-      if (block-&gt;stream == stream &amp;&amp; !block-&gt;prev &amp;&amp; !block-&gt;next) {
-        std::cout &lt;&lt; &quot;Clear&quot; &lt;&lt; &quot;, &quot; &lt;&lt; block-&gt;ptr &lt;&lt; &quot;, &quot;
-                  &lt;&lt; block-&gt;size &lt;&lt; &quot;, &quot; &lt;&lt; block-&gt;allocated &lt;&lt; std::endl;
-        const auto&amp; stats = get_stats_for_device(block-&gt;device);
-        get_stats_for_device(block-&gt;device).decreaseCached(block-&gt;size);
+    std<span class="token operator">::</span>cout <span class="token operator">&lt;&lt;</span> <span class="token string">"Begin Clear"</span> <span class="token operator">&lt;&lt;</span> std<span class="token operator">::</span>endl<span class="token punctuation">;</span>
+    <span class="token keyword">auto</span> it <span class="token operator">=</span> large_blocks<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">while</span> <span class="token punctuation">(</span>it <span class="token operator">!=</span> large_blocks<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      Block<span class="token operator">*</span> block <span class="token operator">=</span> <span class="token operator">*</span>it<span class="token punctuation">;</span>
+      <span class="token comment">// 这里没有 prev 没有 next 说明是没有进行切分的</span>
+      <span class="token comment">// 同时 stream 要是 PipeSwitch 里面设置的 cuda_stream_for_parameter</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>block<span class="token operator">-></span>stream <span class="token operator">==</span> stream <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span>block<span class="token operator">-></span>prev <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span>block<span class="token operator">-></span>next<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        std<span class="token operator">::</span>cout <span class="token operator">&lt;&lt;</span> <span class="token string">"Clear"</span> <span class="token operator">&lt;&lt;</span> <span class="token string">", "</span> <span class="token operator">&lt;&lt;</span> block<span class="token operator">-></span>ptr <span class="token operator">&lt;&lt;</span> <span class="token string">", "</span>
+                  <span class="token operator">&lt;&lt;</span> block<span class="token operator">-></span>size <span class="token operator">&lt;&lt;</span> <span class="token string">", "</span> <span class="token operator">&lt;&lt;</span> block<span class="token operator">-></span>allocated <span class="token operator">&lt;&lt;</span> std<span class="token operator">::</span>endl<span class="token punctuation">;</span>
+        <span class="token keyword">const</span> <span class="token keyword">auto</span><span class="token operator">&amp;</span> stats <span class="token operator">=</span> <span class="token function">get_stats_for_device</span><span class="token punctuation">(</span>block<span class="token operator">-></span>device<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">get_stats_for_device</span><span class="token punctuation">(</span>block<span class="token operator">-></span>device<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">decreaseCached</span><span class="token punctuation">(</span>block<span class="token operator">-></span>size<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-        auto cur = it;
-        ++it;
-        large_blocks.erase(cur);
-        delete block;
-      }
-      else {
-        ++it;
-      }
-    }
-    std::cout &lt;&lt; &quot;End Clear&quot; &lt;&lt; std::endl;
-    // allocated_size = 0;
-  }</code></pre></div>
+        <span class="token keyword">auto</span> cur <span class="token operator">=</span> it<span class="token punctuation">;</span>
+        <span class="token operator">++</span>it<span class="token punctuation">;</span>
+        large_blocks<span class="token punctuation">.</span><span class="token function">erase</span><span class="token punctuation">(</span>cur<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">delete</span> block<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        <span class="token operator">++</span>it<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    std<span class="token operator">::</span>cout <span class="token operator">&lt;&lt;</span> <span class="token string">"End Clear"</span> <span class="token operator">&lt;&lt;</span> std<span class="token operator">::</span>endl<span class="token punctuation">;</span>
+    <span class="token comment">// allocated_size = 0;</span>
+  <span class="token punctuation">}</span></code></pre></div>
 <h3>kSmallSize</h3>
 <p>除此之外，PipeSwitch 还把 <code class="language-text">kSmallSize</code> 设置为了 1。这意味着这样几件事：</p>
 <ul>
 <li><code class="language-text">get_pool</code> 永远使用 <code class="language-text">large_blocks</code>；</li>
 </ul>
-<div class="gatsby-highlight" data-language="c++"><pre class="language-c++"><code class="language-c++">  BlockPool&amp; get_pool(size_t size) {
-    if (size &lt;= kSmallSize) {
-      return small_blocks;
-    } else {
-      return large_blocks;
-    }
-  }</code></pre></div>
+<div class="gatsby-highlight" data-language="cpp"><pre class="language-cpp"><code class="language-cpp">  BlockPool<span class="token operator">&amp;</span> <span class="token function">get_pool</span><span class="token punctuation">(</span>size_t size<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>size <span class="token operator">&lt;=</span> kSmallSize<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> small_blocks<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> large_blocks<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span></code></pre></div>
 <p>在 <code class="language-text">THCCachingAllocator</code> 中，有  <code class="language-text">large_blocks</code> 和 <code class="language-text">small_blocks</code> 两个 <code class="language-text">BlockPool</code>（其实就是 <code class="language-text">std::set</code>）。内部 block 的排序方式如下：</p>
-<div class="gatsby-highlight" data-language="c++"><pre class="language-c++"><code class="language-c++">static bool BlockComparator(const Block* a, const Block* b)
-{
-  if (a-&gt;device != b-&gt;device) {
-    return a-&gt;device &lt; b-&gt;device;
-  }
-  if (a-&gt;stream != b-&gt;stream) {
-    return (uintptr_t)a-&gt;stream &lt; (uintptr_t)b-&gt;stream;
-  }
-  if (a-&gt;size != b-&gt;size) {
-    return a-&gt;size &lt; b-&gt;size;
-  }
-  return (uintptr_t)a-&gt;ptr &lt; (uintptr_t)b-&gt;ptr;
-}</code></pre></div>
+<div class="gatsby-highlight" data-language="cpp"><pre class="language-cpp"><code class="language-cpp"><span class="token keyword">static</span> <span class="token keyword">bool</span> <span class="token function">BlockComparator</span><span class="token punctuation">(</span><span class="token keyword">const</span> Block<span class="token operator">*</span> a<span class="token punctuation">,</span> <span class="token keyword">const</span> Block<span class="token operator">*</span> b<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>a<span class="token operator">-></span>device <span class="token operator">!=</span> b<span class="token operator">-></span>device<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> a<span class="token operator">-></span>device <span class="token operator">&lt;</span> b<span class="token operator">-></span>device<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>a<span class="token operator">-></span>stream <span class="token operator">!=</span> b<span class="token operator">-></span>stream<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>uintptr_t<span class="token punctuation">)</span>a<span class="token operator">-></span>stream <span class="token operator">&lt;</span> <span class="token punctuation">(</span>uintptr_t<span class="token punctuation">)</span>b<span class="token operator">-></span>stream<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>a<span class="token operator">-></span>size <span class="token operator">!=</span> b<span class="token operator">-></span>size<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> a<span class="token operator">-></span>size <span class="token operator">&lt;</span> b<span class="token operator">-></span>size<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>uintptr_t<span class="token punctuation">)</span>a<span class="token operator">-></span>ptr <span class="token operator">&lt;</span> <span class="token punctuation">(</span>uintptr_t<span class="token punctuation">)</span>b<span class="token operator">-></span>ptr<span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre></div>
 <p>这里比较上的一个重点在于先比较 device，再比较 stream，最后再找合适的 size。而在具体查找 block 的时候，更是只能允许选择同一个 stream 上的内存：</p>
-<div class="gatsby-highlight" data-language="c++"><pre class="language-c++"><code class="language-c++">    auto find_free_block = [&amp;]()-&gt;Block*{
-      auto it = pool.lower_bound(&amp;search_key);
-      if (it != pool.end() &amp;&amp; (*it)-&gt;device == device &amp;&amp;
-          (*it)-&gt;stream == stream) {
-        Block* block = *it;
-        pool.erase(it);
-        return block;
-      }
-      return nullptr;
-    };</code></pre></div>
+<div class="gatsby-highlight" data-language="cpp"><pre class="language-cpp"><code class="language-cpp">    <span class="token keyword">auto</span> find_free_block <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token operator">&amp;</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-></span>Block<span class="token operator">*</span><span class="token punctuation">{</span>
+      <span class="token keyword">auto</span> it <span class="token operator">=</span> pool<span class="token punctuation">.</span><span class="token function">lower_bound</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>search_key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>it <span class="token operator">!=</span> pool<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token punctuation">(</span><span class="token operator">*</span>it<span class="token punctuation">)</span><span class="token operator">-></span>device <span class="token operator">==</span> device <span class="token operator">&amp;&amp;</span>
+          <span class="token punctuation">(</span><span class="token operator">*</span>it<span class="token punctuation">)</span><span class="token operator">-></span>stream <span class="token operator">==</span> stream<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Block<span class="token operator">*</span> block <span class="token operator">=</span> <span class="token operator">*</span>it<span class="token punctuation">;</span>
+        pool<span class="token punctuation">.</span><span class="token function">erase</span><span class="token punctuation">(</span>it<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> block<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">return</span> <span class="token keyword">nullptr</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span></code></pre></div>
 <p>这个机制使得 PipeSwitch 可以在不同的 stream 里面共用同一段显存。</p>
 <ul>
 <li>对于 <code class="language-text">large_blocks</code>，只要有剩余，就会拆分；</li>
 </ul>
-<div class="gatsby-highlight" data-language="c++"><pre class="language-c++"><code class="language-c++">  bool should_split(Block* block, size_t size) {
-    size_t remaining = block-&gt;size - size;
-    if (block-&gt;pool == &amp;small_blocks) {
-      return remaining &gt;= kMinBlockSize;
-    } else if (block-&gt;pool == &amp;large_blocks) {
-      // 对于 large blocks，如果有 remaining，就一定拆分
-      return remaining &gt; kSmallSize;
-    } else {
-      AT_ERROR(&quot;should_split: invalid pool&quot;);
-    }
-  }</code></pre></div>
+<div class="gatsby-highlight" data-language="cpp"><pre class="language-cpp"><code class="language-cpp">  <span class="token keyword">bool</span> <span class="token function">should_split</span><span class="token punctuation">(</span>Block<span class="token operator">*</span> block<span class="token punctuation">,</span> size_t size<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    size_t remaining <span class="token operator">=</span> block<span class="token operator">-></span>size <span class="token operator">-</span> size<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>block<span class="token operator">-></span>pool <span class="token operator">==</span> <span class="token operator">&amp;</span>small_blocks<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> remaining <span class="token operator">>=</span> kMinBlockSize<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>block<span class="token operator">-></span>pool <span class="token operator">==</span> <span class="token operator">&amp;</span>large_blocks<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 对于 large blocks，如果有 remaining，就一定拆分</span>
+      <span class="token keyword">return</span> remaining <span class="token operator">></span> kSmallSize<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token function">AT_ERROR</span><span class="token punctuation">(</span><span class="token string">"should_split: invalid pool"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span></code></pre></div>
 <p>因为由上面一点，知道所有的 block 都在 <code class="language-text">large_blocks</code> 里面，所以可以说所有的 block 都会继续拆分（感觉这样会出现比较严重的 fragmentation）。</p>
 <ul>
 <li>永远不会用 <code class="language-text">kSmallBuffer</code></li>
 </ul>
-<div class="gatsby-highlight" data-language="c++"><pre class="language-c++"><code class="language-c++">  size_t get_allocation_size(size_t size) {
-    if (size &lt;= kSmallSize) {
-      return kSmallBuffer;  // 2 MB
-    } else if (size &lt; kMinLargeAlloc) {
-      return kLargeBuffer;  // 20 MB
-    } else {
-      // 2N MB
-      return kRoundLarge * ((size + kRoundLarge - 1) / kRoundLarge);
-    }
-  }</code></pre></div>
+<div class="gatsby-highlight" data-language="cpp"><pre class="language-cpp"><code class="language-cpp">  size_t <span class="token function">get_allocation_size</span><span class="token punctuation">(</span>size_t size<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>size <span class="token operator">&lt;=</span> kSmallSize<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> kSmallBuffer<span class="token punctuation">;</span>  <span class="token comment">// 2 MB</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>size <span class="token operator">&lt;</span> kMinLargeAlloc<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> kLargeBuffer<span class="token punctuation">;</span>  <span class="token comment">// 20 MB</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 2N MB</span>
+      <span class="token keyword">return</span> kRoundLarge <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>size <span class="token operator">+</span> kRoundLarge <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">/</span> kRoundLarge<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span></code></pre></div>
 <h2>python 代码</h2>
 <div class="gatsby-highlight" data-language="python"><pre class="language-python"><code class="language-python"><span class="token comment"># PipeSwitch</span>
 <span class="token keyword">def</span> <span class="token function">allocate_shared_cache</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>

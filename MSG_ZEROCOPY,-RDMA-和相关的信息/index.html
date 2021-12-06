@@ -13,39 +13,39 @@
 <div class="gatsby-highlight" data-language="c"><pre class="language-c"><code class="language-c"><span class="token function">setsockopt</span><span class="token punctuation">(</span>socket<span class="token punctuation">,</span> SO_ZEROCOPY<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token function">send</span><span class="token punctuation">(</span>socket<span class="token punctuation">,</span> buffer<span class="token punctuation">,</span> length<span class="token punctuation">,</span> MSG_ZEROCOPY<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre></div>
 <p>这里面有一个细节，就是在 <code class="language-text">send</code> 的时候，对于比较小的数据，不选择 zerocopy 会更快，所以可以单独设置。例如在 nccl-fastsocket 中：</p>
-<div class="gatsby-highlight" data-language="c++"><pre class="language-c++"><code class="language-c++">    if (op == NCCL_SOCKET_SEND &amp;&amp; kMinZcopySize &gt; 0 &amp;&amp; s &gt;= kMinZcopySize)
-      flags |= MSG_ZEROCOPY;</code></pre></div>
+<div class="gatsby-highlight" data-language="cpp"><pre class="language-cpp"><code class="language-cpp">    <span class="token keyword">if</span> <span class="token punctuation">(</span>op <span class="token operator">==</span> NCCL_SOCKET_SEND <span class="token operator">&amp;&amp;</span> kMinZcopySize <span class="token operator">></span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> s <span class="token operator">>=</span> kMinZcopySize<span class="token punctuation">)</span>
+      flags <span class="token operator">|=</span> MSG_ZEROCOPY<span class="token punctuation">;</span></code></pre></div>
 <p>然后有一个比较大的修改是，在发送完后，需要读一下 socket 的错误队列，确保包已经发走了：</p>
 <div class="gatsby-highlight" data-language="c"><pre class="language-c"><code class="language-c"><span class="token function">recvmsg</span><span class="token punctuation">(</span>socket<span class="token punctuation">,</span> <span class="token operator">&amp;</span>message<span class="token punctuation">,</span> MSG_ERRQUEUE<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre></div>
 <p>这个东西在 nccl-fastsocket 里面是这么用的（简化版本）：</p>
-<div class="gatsby-highlight" data-language="c++"><pre class="language-c++"><code class="language-c++">// 这是一个一直循环的函数
-static void* persistentSocketThread(void* args_) {
-  ...
-  while (true) {
-    // 1 个任务用 n 个 socket 发
-    for (int i = 0; i &lt; nSocksPerThread; ++i) {
-      ncclSocketTaskQueue* tasks = get_task();
-      if (tasks-&gt;has_active()) {  // 有要发送的任务
-        do {  // 把需要发的东西都发了，这里用的是同一个 buffer，即 data
-          send(fd, data + t-&gt;offset, s, flags);
-        } while (...)
-        ...
-      }
+<div class="gatsby-highlight" data-language="cpp"><pre class="language-cpp"><code class="language-cpp"><span class="token comment">// 这是一个一直循环的函数</span>
+<span class="token keyword">static</span> <span class="token keyword">void</span><span class="token operator">*</span> <span class="token function">persistentSocketThread</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token operator">*</span> args_<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+  <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 1 个任务用 n 个 socket 发</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> nSocksPerThread<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      ncclSocketTaskQueue<span class="token operator">*</span> tasks <span class="token operator">=</span> <span class="token function">get_task</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>tasks<span class="token operator">-></span><span class="token function">has_active</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>  <span class="token comment">// 有要发送的任务</span>
+        <span class="token keyword">do</span> <span class="token punctuation">{</span>  <span class="token comment">// 把需要发的东西都发了，这里用的是同一个 buffer，即 data</span>
+          <span class="token function">send</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> data <span class="token operator">+</span> t<span class="token operator">-></span>offset<span class="token punctuation">,</span> s<span class="token punctuation">,</span> flags<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+      <span class="token punctuation">}</span>
 
-      // poll errqueue for send completion
-      if (fd_data-&gt;tx_upper &gt; fd_data-&gt;tx_lower) {
-        // ...
-        while (true) {
-          int ret = recvmsg(fd, &amp;msg, MSG_ERRQUEUE);
-  				if (ret &lt; 0 &amp;&amp; errno == EAGAIN) return break;
-          // 从错误信息里面判断任务已经进行了多少了...
-        }
-        // ...
-      }
-    }
-    // ...
-  }
-}</code></pre></div>
+      <span class="token comment">// poll errqueue for send completion</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>fd_data<span class="token operator">-></span>tx_upper <span class="token operator">></span> fd_data<span class="token operator">-></span>tx_lower<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// ...</span>
+        <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          <span class="token keyword">int</span> ret <span class="token operator">=</span> <span class="token function">recvmsg</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> <span class="token operator">&amp;</span>msg<span class="token punctuation">,</span> MSG_ERRQUEUE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  				<span class="token keyword">if</span> <span class="token punctuation">(</span>ret <span class="token operator">&lt;</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> errno <span class="token operator">==</span> EAGAIN<span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token keyword">break</span><span class="token punctuation">;</span>
+          <span class="token comment">// 从错误信息里面判断任务已经进行了多少了...</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">// ...</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// ...</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre></div>
 <p>大致就是在发送完，用一个循环来判断是否发送完了。</p>
 <p>后面的这个 <code class="language-text">recvmsg</code> 的引入貌似收到个各位知乎大佬们的讨论。</p>
 <h2>底层原理</h2>
