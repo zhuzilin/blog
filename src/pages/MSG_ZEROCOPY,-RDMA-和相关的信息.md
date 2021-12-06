@@ -27,7 +27,7 @@ send(socket, buffer, length, MSG_ZEROCOPY);
 
 这里面有一个细节，就是在 `send` 的时候，对于比较小的数据，不选择 zerocopy 会更快，所以可以单独设置。例如在 nccl-fastsocket 中：
 
-```c++
+```cpp
     if (op == NCCL_SOCKET_SEND && kMinZcopySize > 0 && s >= kMinZcopySize)
       flags |= MSG_ZEROCOPY;
 ```
@@ -40,7 +40,7 @@ recvmsg(socket, &message, MSG_ERRQUEUE);
 
 这个东西在 nccl-fastsocket 里面是这么用的（简化版本）：
 
-```c++
+```cpp
 // 这是一个一直循环的函数
 static void* persistentSocketThread(void* args_) {
   ...

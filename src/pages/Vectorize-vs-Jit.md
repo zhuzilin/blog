@@ -14,7 +14,7 @@ tags: ["db"]
 
 从伪代码的角度来说，vectorize 的目标是将一层循环转化成 2 层循环，其中里层的循环较为简单，方便自动进行并行处理，类似于从原本的：
 
-```c++
+```cpp
 for (int i = 0; i < num; i++) {
   output[i] = process(input[i]);
 }
@@ -22,7 +22,7 @@ for (int i = 0; i < num; i++) {
 
 变为：
 
-```c++
+```cpp
 for (int i = 0; i < num; i += batch) {
   for (int j = i; j < min(i + batch, num); j++) {
     output[j] = process(input[j]);

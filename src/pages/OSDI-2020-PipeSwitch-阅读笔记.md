@@ -16,7 +16,7 @@ tags: ["paper"]
 
 就是分配一段显存在 `PIPESWITCH_shared_ptr`，大小为 12GB。
 
-```c++
+```cpp
 #define SIZE_SHARED_CACHE (12 * 1024UL * 1024UL * 1024UL) // PipeSwitch
 
   /* PipeSwitch: allocate shared GPU memory */
@@ -34,7 +34,7 @@ tags: ["paper"]
 
 获取一个跨进程的 handle，并把这个 handle 发出去。
 
-```c++
+```cpp
   /* PipeSwitch: send shared GPU memory */
   void sendSharedCache() {
     std::lock_guard<std::recursive_mutex> lock(mutex);
@@ -86,7 +86,7 @@ tags: ["paper"]
 
 ### recvSharedCache
 
-```c++
+```cpp
   /* PipeSwitch: recv shared GPU memory */
   void recvSharedCache() {
     std::lock_guard<std::recursive_mutex> lock(mutex);
@@ -127,7 +127,7 @@ tags: ["paper"]
 
 ### insertSharedCache
 
-```c++
+```cpp
   /* PipeSwitch: insert shared GPU memory to large block pool */
     void insertSharedCache(size_t size, size_t offset) {
     std::lock_guard<std::recursive_mutex> lock(mutex);
@@ -149,7 +149,7 @@ tags: ["paper"]
 
 ### clearSharedCache
 
-```c++
+```cpp
   /* PipeSwitch: clear shared GPU memory */
   void clearSharedCache() {
     std::lock_guard<std::recursive_mutex> lock(mutex);
@@ -190,7 +190,7 @@ tags: ["paper"]
 
 - `get_pool` 永远使用 `large_blocks`；
 
-```c++
+```cpp
   BlockPool& get_pool(size_t size) {
     if (size <= kSmallSize) {
       return small_blocks;
@@ -202,7 +202,7 @@ tags: ["paper"]
 
 在 `THCCachingAllocator` 中，有  `large_blocks` 和 `small_blocks` 两个 `BlockPool`（其实就是 `std::set`）。内部 block 的排序方式如下：
 
-```c++
+```cpp
 static bool BlockComparator(const Block* a, const Block* b)
 {
   if (a->device != b->device) {
@@ -220,7 +220,7 @@ static bool BlockComparator(const Block* a, const Block* b)
 
 这里比较上的一个重点在于先比较 device，再比较 stream，最后再找合适的 size。而在具体查找 block 的时候，更是只能允许选择同一个 stream 上的内存：
 
-```c++
+```cpp
     auto find_free_block = [&]()->Block*{
       auto it = pool.lower_bound(&search_key);
       if (it != pool.end() && (*it)->device == device &&
@@ -237,7 +237,7 @@ static bool BlockComparator(const Block* a, const Block* b)
 
 - 对于 `large_blocks`，只要有剩余，就会拆分；
 
-```c++
+```cpp
   bool should_split(Block* block, size_t size) {
     size_t remaining = block->size - size;
     if (block->pool == &small_blocks) {
@@ -255,7 +255,7 @@ static bool BlockComparator(const Block* a, const Block* b)
 
 - 永远不会用 `kSmallBuffer`
 
-```c++
+```cpp
   size_t get_allocation_size(size_t size) {
     if (size <= kSmallSize) {
       return kSmallBuffer;  // 2 MB

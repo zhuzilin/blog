@@ -10,7 +10,7 @@ tags: ["OS"]
 
  POSIX API：
 
-```c++
+```cpp
 int fd = open(...)
 void *sysmem_buf, *gpumem_buf;
 sysmem_buf = malloc(buf_size);
@@ -23,7 +23,7 @@ doit<<<gpumem_buf, …>>>
 
 cuFile API：
 
-```c++
+```cpp
 int fd = open(file_name, O_DIRECT,...)
 CUFileHandle_t *fh; 
 CUFileDescr_t desc; 
