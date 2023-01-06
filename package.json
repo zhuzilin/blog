@@ -5,12 +5,11 @@
   "version": "0.1.0",
   "license": "MIT",
   "scripts": {
-    "develop": "gatsby develop",
+    "develop": "NODE_OPTIONS=--openssl-legacy-provider gatsby develop",
     "start": "npm run develop",
-    "build": "gatsby build",
-    "serve": "gatsby serve",
-    "test": "echo \"Write tests! -> https://gatsby.app/unit-testing\"",
-    "deploy": "gatsby build --prefix-paths && gh-pages -d public -b master"
+    "build": "NODE_OPTIONS=--openssl-legacy-provider gatsby build",
+    "serve": "NODE_OPTIONS=--openssl-legacy-provider gatsby serve",
+    "deploy": "NODE_OPTIONS=--openssl-legacy-provider gatsby build --prefix-paths && gh-pages -d public -b master"
   },
   "dependencies": {
     "@emotion/core": "^10.0.6",
