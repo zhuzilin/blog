@@ -1,1 +1,0 @@
-{"componentChunkName":"component---src-templates-tag-js","path":"/blog/tags/aws/","webpackCompilationHash":"2fc5e5cd70a623112261","result":{"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/Configure-aws-sdk-in-win10/"},"frontmatter":{"title":"Configure aws-sdk in win10"}}}]}},"pageContext":{"isCreatedByStatefulCreatePages":false,"tag":"aws"}}}
