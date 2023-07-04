@@ -8,7 +8,7 @@ export default ({ data }) => (
     <p>
       Hi! I am zhuzilin. Welcome to my blog. 
       <br/>
-      Here are some thoughts about coding and my interests.
+      Here are my thoughts on my life.
     </p>
   </Layout>
 )
