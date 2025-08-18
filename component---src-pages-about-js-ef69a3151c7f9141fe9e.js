@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkzhuzilin_blog=self.webpackChunkzhuzilin_blog||[]).push([[432],{9434:function(l,u,e){e.r(u);e(6540);var n=e(3895),t=e(9331);u.default=l=>{let{data:u}=l;return(0,t.Y)(n.A,null,(0,t.Y)("h1",null,"About"),(0,t.Y)("p",null,"Hi! I am zhuzilin. Welcome to my blog.",(0,t.Y)("br",null),"Here are my thoughts on my life."))}}}]);
+//# sourceMappingURL=component---src-pages-about-js-ef69a3151c7f9141fe9e.js.map
