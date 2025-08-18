@@ -19,8 +19,8 @@ exports.createPages = ({ graphql, actions }) => {
     return graphql(`
     {
       allMarkdownRemark(
-        filter: { fields: { draft: { eq: false } } }
-        sort: { order: DESC, fields: [frontmatter___date] }
+        filter: { frontmatter: { draft: { ne: true } } }
+        sort: { frontmatter: { date: DESC } }
         limit: 2000
       ) {
         edges {
@@ -30,6 +30,7 @@ exports.createPages = ({ graphql, actions }) => {
             }
             frontmatter {
               tags
+              draft
             }
           }
         }

@@ -1,5 +1,5 @@
 import React from "react"
-import { css } from "@emotion/core"
+import { css } from "@emotion/react"
 import { Link, graphql } from "gatsby"
 import { rhythm } from "../utils/typography"
 import Layout from "../components/layout"
@@ -42,8 +42,8 @@ export const query = graphql`
       siteMetadata { title }
     }
     allMarkdownRemark(
-      filter: { fields: { draft: { eq: false } } }
-      sort: { fields: [frontmatter___date], order: DESC }
+      filter: { frontmatter: { draft: { ne: true } } }
+      sort: { frontmatter: { date: DESC } }
     ) {
       totalCount
       edges {

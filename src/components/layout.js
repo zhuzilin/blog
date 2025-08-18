@@ -1,22 +1,23 @@
 import React from "react"
-import { css } from "@emotion/core"
-import { StaticQuery, Link, graphql } from "gatsby"
+import { css } from "@emotion/react"
+import { useStaticQuery, Link, graphql } from "gatsby"
 import { Helmet } from "react-helmet"
 import { rhythm } from "../utils/typography"
 
-export default ({ children }) => (
-  <StaticQuery
-    query={
-      graphql`
+export default ({ children }) => {
+  const data = useStaticQuery(
+    graphql`
       query {
         site {
-        siteMetadata {
-          title
-        }
+          siteMetadata {
+            title
+          }
         }
       }
-      `}
-  render={data => (
+    `
+  )
+  
+  return (
     <div css={css`
         margin: 0 auto;
         max-width: 900px;
@@ -45,6 +46,5 @@ export default ({ children }) => (
       </Link>
       {children}
     </div>
-  )}
-  />
-)
+  )
+}
